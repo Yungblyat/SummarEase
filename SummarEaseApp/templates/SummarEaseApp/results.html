@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Diarization Results</title>
+</head>
+<body>
+
+    <h1>Transcription Results</h1>
+    <p>{{ trancript_result }}</p>
+
+    <h1>Diarization Results</h1>
+    {% if diarization_results%}
+    <ul>
+        {% for result in diarization_results %}
+            <li>{{ result }}</li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No Diarization result</p>
+    {% endif %}
+
+</body>
+</html>

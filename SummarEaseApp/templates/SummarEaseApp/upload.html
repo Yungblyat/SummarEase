@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Audio</title>
+</head>
+<body>
+    <h1>Upload Audio File</h1>
+    <form method="post" enctype="multipart/form-data" action="{% url 'diarize' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="checkbox" id="diarizationCheckbox" name="diarizationCheckbox">
+        <label for="diarizationCheckbox">Speech Diarization</label><br>
+        <button type="submit">Transcribe</button>
+    </form>
+</body>
+</html>
