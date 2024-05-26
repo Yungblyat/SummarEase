@@ -1,23 +1,85 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Diarization Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(90deg, #08203e 0%, #557c93 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow-y: auto;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 80%;
+            max-width: 600px;
+            text-align: left;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+        .container h1 {
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 5px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .container p {
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 10px;
+            border-radius: 5px;
+            white-space: pre-wrap; /* ensures text wraps and new lines are respected */
+            word-wrap: break-word; /* ensures long words will break to fit in the container */
+        }
+        .container ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .container li {
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            white-space: pre-wrap; /* ensures text wraps and new lines are respected */
+            word-wrap: break-word; /* ensures long words will break to fit in the container */
+        }
+        .container p.no-result {
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>Transcription Results</h1>
+        <p>{{trancript_result}}</p>
 
-    <h1>Transcription Results</h1>
-    <p>{{ trancript_result }}</p>
-
-    <h1>Diarization Results</h1>
-    {% if diarization_results%}
-    <ul>
-        {% for result in diarization_results %}
-            <li>{{ result }}</li>
-        {% endfor %}
-    </ul>
-    {% else %}
-    <p>No Diarization result</p>
-    {% endif %}
-
+        <h1>Diarization Results</h1>
+        {% if diarization_results %}
+        <ul>
+            {% for result in diarization_results %}
+                <li>{{ result }}</li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="no-result">No Diarization result</p>
+        {% endif %}
+    </div>
 </body>
 </html>
