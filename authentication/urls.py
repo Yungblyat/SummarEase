@@ -7,7 +7,7 @@ from django.conf.urls.static import static
  
 # Define URL patterns
 urlpatterns = [
-    path('', home, name="home"),      # Home page
+    path('', login_page, name="home"),      # Home page
     path("admin/", admin.site.urls),          # Admin interface
     path('login/', login_page, name='login_page'),    # Login page
     path('register/', register_page, name='register'),  # Registration page
