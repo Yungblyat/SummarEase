@@ -10,7 +10,6 @@ from .forms import AudioFileForm
 from .models import Transcript, SpeakerDiarization
 from dotenv import load_dotenv
 
-
 #Note: Move the ultity function to a seperate utilty file
 def transcribe(device: str, model, audio_file: str, batch_size=16, compute_type="int8") -> dict:
     model = whisperx.load_model(model, device, compute_type=compute_type)
@@ -20,7 +19,7 @@ def transcribe(device: str, model, audio_file: str, batch_size=16, compute_type=
 
 def diarize(auth_key: str, device: str, audio, transcription_result) -> str:
     result = transcription_result
-    model_a, metadata = whisperx.load_align_model(language_code=result["en"], device=device)
+    model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
     result = whisperx.align(result["segments"], model_a, metadata, audio, device, return_char_alignments=False)
     diarize_model = whisperx.DiarizationPipeline(use_auth_token=auth_key, device=device)
     diarize_segments = diarize_model(audio)
@@ -85,5 +84,4 @@ def process_diarization_result(diarization_result):
     return results
 
 
-# Note: make a json serializer and desiralizer so the transcript and
-# SpeakerDiarization can be stored in database and accessed for futher processing
+# Note: make a json serializer and desiralizer so the transcript and SpeakerDiarization can be stored in database and accessed for futher processing

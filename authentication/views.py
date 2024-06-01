@@ -68,7 +68,7 @@ def register_page(request):
 		
 		# Display an information message indicating successful account creation
 		messages.info(request, "Account created Successfully!")
-		return redirect('/register/')
+		return redirect('/login/')
 	
 	# Render the registration page template (GET request)
 	return render(request, 'register.html')
