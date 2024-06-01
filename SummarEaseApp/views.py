@@ -9,6 +9,7 @@ from django.shortcuts import render, redirect
 from .forms import AudioFileForm
 from .models import Transcript, SpeakerDiarization
 from dotenv import load_dotenv
+from SummarEaseFyp.settings import BASE_DIR
 
 #Note: Move the ultity function to a seperate utilty file
 def transcribe(device: str, model, audio_file: str, batch_size=16, compute_type="int8") -> dict:
@@ -27,8 +28,8 @@ def diarize(auth_key: str, device: str, audio, transcription_result) -> str:
     return result
 
 def main(device: str, model: str, audio_file, transcription_file: bool = False, diarization_file: bool = False) -> dict:
-    load_dotenv(".env")
-    auth_key = os.getenv("AUTH")
+    load_dotenv(f"{BASE_DIR}\\.env")
+    auth_key = os.getenv("AUTH_KEY")
     transcribe_ = transcribe(device, model, audio_file)
     output = {"transcription": transcribe_}
     if diarization_file:

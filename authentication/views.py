@@ -6,10 +6,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from .models import *
 
-# Define a view function for the home page
-def home(request):
-	return render(request, 'login.html')
-
 # Define a view function for the login page
 def login_page(request):
 	# Check if the HTTP request method is POST (form submission)
@@ -19,6 +15,7 @@ def login_page(request):
 		
 		# Check if a user with the provided username exists
 		if not User.objects.filter(username=username).exists():
+			print("User does not exist")
 			# Display an error message if the username does not exist
 			messages.error(request, 'Invalid Username')
 			return redirect('/login/')
