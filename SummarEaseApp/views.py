@@ -20,7 +20,7 @@ def transcribe(device: str, model, audio_file: str, batch_size=16, compute_type=
 
 def diarize(auth_key: str, device: str, audio, transcription_result) -> str:
     result = transcription_result
-    model_a, metadata = whisperx.load_align_model(language_code=result["en"], device=device)
+    model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
     result = whisperx.align(result["segments"], model_a, metadata, audio, device, return_char_alignments=False)
     diarize_model = whisperx.DiarizationPipeline(use_auth_token=auth_key, device=device)
     diarize_segments = diarize_model(audio)
@@ -30,7 +30,7 @@ def diarize(auth_key: str, device: str, audio, transcription_result) -> str:
 def main(device: str, model: str, audio_file, transcription_file: bool = False, diarization_file: bool = False) -> dict:
     load_dotenv(".env")
     auth_key = os.getenv("AUTH")
-    transcribe_ = transcribe(device, model, audio_file)
+    transcribe_ = transcribe(device, model, audio_file,compute_type="float16")
     output = {"transcription": transcribe_}
     if diarization_file:
         output["diarization"] = diarize(auth_key, device, audio_file, transcribe_)

@@ -18,9 +18,9 @@ transcript = """
 """
 
 # transcript = "This is urgent"
-cock = summarizer(transcript)
-print(cock)
-print(cock[0]["summary_text"])
+c= summarizer(transcript)
+print(c)
+print(c[0]["summary_text"])
 print(type(cock))
 
 
