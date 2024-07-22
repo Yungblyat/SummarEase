@@ -69,15 +69,6 @@
     <div class="container">
         <h1>Transcription and Diarization Results</h1>
         
-        <h2>Available Transcripts</h2>
-        <ul class="transcript-list">
-            {% for audio_file in audio_files %}
-                <li>
-                    <a href="{% url 'view_transcript' audio_file.id %}">{{ audio_file.file.name }}</a>
-                    (Uploaded at: {{ audio_file.uploaded_at }})
-                </li>
-            {% endfor %}
-        </ul>
         
         {% if audio_file %}
             <h2>Results for {{ audio_file.file.name }}</h2>

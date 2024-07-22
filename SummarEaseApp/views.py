@@ -53,16 +53,20 @@ def upload_audio(request):
                 print("Processing took: {} seconds".format(time.time() - start_time))
 
                 # Save transcription result
-                transcript_content = ''.join([f"{segment.get('text').lstrip()}" for segment in output["transcription"]["segments"]])
-                # Transcript.objects.create(audio_file=audio_file, content=output["transcription"]) 
-                Transcript.objects.create(audio_file=audio_file, content=output["transcription"])   
+                transcript_result = ''.join([f"{segment.get('text').lstrip()}" for segment in output["transcription"]["segments"]])
+                Transcript.objects.create(audio_file=audio_file, content=output["transcription"])
+
                 # Save diarization result if selected
                 if "diarization" in output:
                     SpeakerDiarization.objects.create(audio_file=audio_file, content=output["diarization"])
 
                 diarization_results = process_diarization_result(output.get("diarization", None))
     
-                return render(request, 'SummarEaseApp/results.html', {'diarization_results': diarization_results,'trancript_result':transcript_content})
+                return render(request, 'SummarEaseApp/results.html', {
+                    'audio_file': audio_file,
+                    'diarization_results': diarization_results,
+                    'transcript_result': transcript_result
+                })
             except RuntimeError:
                 return render(request, 'SummarEaseApp/error.html', {'error': "Ran out of Memory (try switching device to cpu or change the model)"})
             except FileNotFoundError:
@@ -73,6 +77,7 @@ def upload_audio(request):
     else:
         form = AudioFileForm()
     return render(request, 'SummarEaseApp/upload.html', {'form': form})
+
 
 def process_diarization_result(diarization_result):
     if not diarization_result:
@@ -87,6 +92,11 @@ def process_diarization_result(diarization_result):
 
 
 @login_required
+def transcript_list(request):
+    audio_files = AudioFile.objects.filter(user=request.user)
+    return render(request, 'SummarEaseApp/transcript_list.html', {'audio_files': audio_files})
+
+@login_required
 def transcript_list_and_view(request, audio_file_id=None):
     audio_files = AudioFile.objects.filter(user=request.user)
     
@@ -97,7 +107,7 @@ def transcript_list_and_view(request, audio_file_id=None):
     if audio_file_id:
         selected_audio_file = get_object_or_404(AudioFile, id=audio_file_id, user=request.user)
         transcript = selected_audio_file.transcript
-        diarization = selected_audio_file.speaker_diarization
+        diarization = getattr(selected_audio_file, 'speaker_diarization', None)  # Use getattr to handle absence
 
         transcript_result = ''.join([f"{segment.get('text').lstrip()}" for segment in transcript.content["segments"]]) if transcript else None
         diarization_results = [f"{segment.get('speaker')}: {segment.get('text').lstrip()}" for segment in diarization.content["segments"]] if diarization else None
@@ -106,6 +116,8 @@ def transcript_list_and_view(request, audio_file_id=None):
         'audio_files': audio_files,
         'audio_file': selected_audio_file,
         'transcript_result': transcript_result,
-        'diarization_results': diarization_results
+        'diarization_results': diarization_results,
     }
+
     return render(request, 'SummarEaseApp/results.html', context)
+
