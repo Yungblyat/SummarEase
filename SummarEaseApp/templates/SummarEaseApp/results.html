@@ -67,20 +67,35 @@
 </head>
 <body>
     <div class="container">
-        <h1>Transcription Results</h1>
-        <p>{{trancript_result}}</p>
-
-        <h1>Diarization Results</h1>
-        {% if diarization_results %}
+        <h1>Transcription and Diarization Results</h1>
         
-        <ul>
-            {% for result in diarization_results %}
-                <li>{{ result }}</li>
+        <h2>Available Transcripts</h2>
+        <ul class="transcript-list">
+            {% for audio_file in audio_files %}
+                <li>
+                    <a href="{% url 'view_transcript' audio_file.id %}">{{ audio_file.file.name }}</a>
+                    (Uploaded at: {{ audio_file.uploaded_at }})
+                </li>
             {% endfor %}
         </ul>
-        {% else %}
-        <p class="no-result">No Diarization result</p>
+        
+        {% if audio_file %}
+            <h2>Results for {{ audio_file.file.name }}</h2>
+            <h3>Transcription Results</h3>
+            <p>{{ transcript_result }}</p>
+
+            <h3>Diarization Results</h3>
+            {% if diarization_results %}
+                <ul>
+                    {% for result in diarization_results %}
+                        <li>{{ result }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="no-result">No Diarization result</p>
+            {% endif %}
         {% endif %}
     </div>
 </body>
+
 </html>
