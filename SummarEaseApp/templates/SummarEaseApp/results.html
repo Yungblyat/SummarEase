@@ -105,13 +105,17 @@
         </ul>
 
         <h2>Interruption Frequency</h2>
-        <ul class="metrics-list">
-            {% for speaker, interruption_counts in interruptions.items %}
-                {% for interrupted_speaker, count in interruption_counts.items %}
-                    <li>{{ speaker }} interrupted {{ interrupted_speaker }} {{ count }} times</li>
-                {% endfor %}
+{% if interruptions %}
+    <ul class="metrics-list">
+        {% for speaker, interruption_counts in interruptions.items %}
+            {% for interrupted_speaker, count in interruption_counts.items %}
+                <li>{{ speaker }} interrupted {{ interrupted_speaker }} {{ count }} times</li>
             {% endfor %}
-        </ul>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p class="no-result">No Interruption data</p>
+{% endif %}
         
         <h2>Sentiment Analysis</h2>
         <ul class="metrics-list">

@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 from SummarEaseFyp.settings import BASE_DIR
 from ParticipantEngagement_SentimentAnalysis.views import calculate_engagement_metrics, calculate_speech_rate, calculate_interruption_frequency, calculate_sentiment
 from ParticipantEngagement_SentimentAnalysis.models  import ParticipantEngagement
+from collections import defaultdict
 
 #Note: Move the ultity function to a seperate utilty file
 def transcribe(device: str, model, audio_file: str, batch_size=16, compute_type="int8") -> dict:
@@ -39,6 +40,11 @@ def main(device: str, model: str, audio_file, transcription_file: bool = False, 
         output["diarization"] = diarize(auth_key, device, audio_file, transcribe_)
     return output
 
+def convert_defaultdict_to_dict(d):
+    if isinstance(d, defaultdict):
+        d = {k: convert_defaultdict_to_dict(v) for k, v in d.items()}
+    return d
+
 # @login_required
 def upload_audio(request):
     if request.method == 'POST':
@@ -50,20 +56,27 @@ def upload_audio(request):
             file_path = os.path.join(settings.MEDIA_ROOT, audio_file.file.name)
             try:
                 output = main(device="cuda", model="base", audio_file=file_path, transcription_file=True, diarization_file=request.POST.get('diarizationCheckbox'))
-
                 
                 transcript_content = output["transcription"]
                 Transcript.objects.create(audio_file=audio_file, content=transcript_content)
 
+                diarization_content = None
+                metrics = None
+                speech_rate = None
+                interruptions = None
+                sentiment = None
+
                 if "diarization" in output:
                     SpeakerDiarization.objects.create(audio_file=audio_file, content=output["diarization"])
-
-                if request.POST.get('engagementCheckbox') and "diarization" in output:
                     diarization_content = output["diarization"]
+
+                if request.POST.get('engagementCheckbox') and diarization_content:
                     metrics = calculate_engagement_metrics(diarization_content)
-                    speech_rate = calculate_speech_rate(output["diarization"])
+                    speech_rate = calculate_speech_rate(diarization_content)
                     interruptions = calculate_interruption_frequency(diarization_content)
-                    sentiment = calculate_sentiment(output["diarization"])
+                    sentiment = calculate_sentiment(diarization_content)
+
+                    interruptions = convert_defaultdict_to_dict(interruptions)
 
                     ParticipantEngagement.objects.update_or_create(
                         audio_file=audio_file,
@@ -74,8 +87,10 @@ def upload_audio(request):
                             'sentiment': sentiment
                         }
                     )
-                print(interruptions)
-                diarization_results = process_diarization_result(output.get("diarization", None))
+                
+                print("Interruptions:", interruptions)  # Debug print statement
+                
+                diarization_results = process_diarization_result(diarization_content)
 
                 return render(request, 'SummarEaseApp/results.html', {
                     'diarization_results': diarization_results,
@@ -98,6 +113,7 @@ def upload_audio(request):
         form = AudioFileForm()
    
     return render(request, 'SummarEaseApp/upload.html', {'form': form})
+
 
 
 def process_diarization_result(diarization_result):
