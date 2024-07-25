@@ -11,6 +11,8 @@ from .forms import AudioFileForm
 from .models import Transcript, SpeakerDiarization,AudioFile
 from dotenv import load_dotenv
 from SummarEaseFyp.settings import BASE_DIR
+from ParticipantEngagement_SentimentAnalysis.views import calculate_engagement_metrics, calculate_speech_rate, calculate_interruption_frequency, calculate_sentiment
+from ParticipantEngagement_SentimentAnalysis.models  import ParticipantEngagement
 
 #Note: Move the ultity function to a seperate utilty file
 def transcribe(device: str, model, audio_file: str, batch_size=16, compute_type="int8") -> dict:
@@ -29,7 +31,7 @@ def diarize(auth_key: str, device: str, audio, transcription_result) -> str:
     return result
 
 def main(device: str, model: str, audio_file, transcription_file: bool = False, diarization_file: bool = False) -> dict:
-    load_dotenv(".env")
+    load_dotenv(f"{BASE_DIR}\\.env")
     auth_key = os.getenv("AUTH")
     transcribe_ = transcribe(device, model, audio_file)
     output = {"transcription": transcribe_}
@@ -47,26 +49,44 @@ def upload_audio(request):
             audio_file.save()
             file_path = os.path.join(settings.MEDIA_ROOT, audio_file.file.name)
             try:
-                start_time = time.time()
-                diarization_selected = request.POST.get('diarizationCheckbox')
-                output = main(device="cuda", model="base", audio_file=file_path, transcription_file=True, diarization_file=diarization_selected)
-                print("Processing took: {} seconds".format(time.time() - start_time))
+                output = main(device="cuda", model="base", audio_file=file_path, transcription_file=True, diarization_file=request.POST.get('diarizationCheckbox'))
 
-                # Save transcription result
-                transcript_result = ''.join([f"{segment.get('text').lstrip()}" for segment in output["transcription"]["segments"]])
-                Transcript.objects.create(audio_file=audio_file, content=output["transcription"])
+                
+                transcript_content = output["transcription"]
+                Transcript.objects.create(audio_file=audio_file, content=transcript_content)
 
-                # Save diarization result if selected
                 if "diarization" in output:
                     SpeakerDiarization.objects.create(audio_file=audio_file, content=output["diarization"])
 
+                if request.POST.get('engagementCheckbox') and "diarization" in output:
+                    diarization_content = output["diarization"]
+                    metrics = calculate_engagement_metrics(diarization_content)
+                    speech_rate = calculate_speech_rate(output["diarization"])
+                    interruptions = calculate_interruption_frequency(diarization_content)
+                    sentiment = calculate_sentiment(output["diarization"])
+
+                    ParticipantEngagement.objects.update_or_create(
+                        audio_file=audio_file,
+                        defaults={
+                            'metrics': metrics,
+                            'speech_rate': speech_rate,
+                            'interruptions': interruptions,
+                            'sentiment': sentiment
+                        }
+                    )
+                print(interruptions)
                 diarization_results = process_diarization_result(output.get("diarization", None))
-    
+
                 return render(request, 'SummarEaseApp/results.html', {
-                    'audio_file': audio_file,
                     'diarization_results': diarization_results,
-                    'transcript_result': transcript_result
+                    'transcript_result': ''.join([f"{segment.get('text').lstrip()}" for segment in transcript_content.get("segments", [])]),
+                    'metrics': metrics if request.POST.get('engagementCheckbox') else None,
+                    'speech_rate': speech_rate if request.POST.get('engagementCheckbox') else None,
+                    'interruptions': interruptions if request.POST.get('engagementCheckbox') else None,
+                    'sentiment': sentiment if request.POST.get('engagementCheckbox') else None,
+                    'audio_file': audio_file
                 })
+                
             except RuntimeError:
                 return render(request, 'SummarEaseApp/error.html', {'error': "Ran out of Memory (try switching device to cpu or change the model)"})
             except FileNotFoundError:
@@ -76,12 +96,13 @@ def upload_audio(request):
                 torch.cuda.empty_cache()
     else:
         form = AudioFileForm()
+   
     return render(request, 'SummarEaseApp/upload.html', {'form': form})
 
 
 def process_diarization_result(diarization_result):
     if not diarization_result:
-        return 
+        return []
 
     results = []
     for segment in diarization_result["segments"]:
@@ -89,7 +110,6 @@ def process_diarization_result(diarization_result):
         text = segment.get("text", "Unknown").lstrip()
         results.append(f"{speaker}: {text}")
     return results
-
 
 @login_required
 def transcript_list(request):
@@ -102,21 +122,36 @@ def transcript_list_and_view(request, audio_file_id=None):
     
     transcript_result = None
     diarization_results = None
+    engagement_metrics = None
     selected_audio_file = None
 
     if audio_file_id:
         selected_audio_file = get_object_or_404(AudioFile, id=audio_file_id, user=request.user)
-        transcript = selected_audio_file.transcript
+        transcript = getattr(selected_audio_file, 'transcript', None)
         diarization = getattr(selected_audio_file, 'speaker_diarization', None)  # Use getattr to handle absence
 
         transcript_result = ''.join([f"{segment.get('text').lstrip()}" for segment in transcript.content["segments"]]) if transcript else None
         diarization_results = [f"{segment.get('speaker')}: {segment.get('text').lstrip()}" for segment in diarization.content["segments"]] if diarization else None
-
+        
+        # Fetch engagement metrics
+        engagement = ParticipantEngagement.objects.filter(audio_file=selected_audio_file).first()
+        if engagement:
+                metrics =engagement.metrics
+                speech_rate= engagement.speech_rate
+                interruptions= engagement.interruptions
+                sentiment= engagement.sentiment
+    
+    
     context = {
         'audio_files': audio_files,
         'audio_file': selected_audio_file,
         'transcript_result': transcript_result,
         'diarization_results': diarization_results,
+        'interruptions': interruptions,
+        'sentiment': sentiment,
+        'speech_rate': speech_rate,
+        'metrics':metrics
+        
     }
 
     return render(request, 'SummarEaseApp/results.html', context)

@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "SummarEaseApp",
     "authentication",
+    "ParticipantEngagement_SentimentAnalysis",
 
 ]
 

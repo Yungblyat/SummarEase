@@ -37,4 +37,3 @@ class SpeakerDiarization(models.Model):
    
 
 
-#make changes according to json serializer and deserializer

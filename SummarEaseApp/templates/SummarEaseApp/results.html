@@ -87,6 +87,39 @@
             {% endif %}
         {% endif %}
     </div>
+    <div class="container">
+        <h1>Participant Engagement Metrics for {{ audio_file.file.name }}</h1>
+
+        <h2>Engagement Metrics</h2>
+        <ul class="metrics-list">
+            {% for speaker, metrics in metrics.items %}
+                <li>{{ speaker }}: Total Time: {{ metrics.total_time }}s, Turns: {{ metrics.turns }}, Average Time Per Turn: {{ metrics.average_time_per_turn }}s</li>
+            {% endfor %}
+        </ul>
+        
+        <h2>Speech Rate</h2>
+        <ul class="metrics-list">
+            {% for speaker, metrics in speech_rate.items %}
+                <li>{{ speaker }}: Speech Rate: {{ metrics.speech_rate }} words/minute</li>
+            {% endfor %}
+        </ul>
+
+        <h2>Interruption Frequency</h2>
+        <ul class="metrics-list">
+            {% for speaker, interruption_counts in interruptions.items %}
+                {% for interrupted_speaker, count in interruption_counts.items %}
+                    <li>{{ speaker }} interrupted {{ interrupted_speaker }} {{ count }} times</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+        
+        <h2>Sentiment Analysis</h2>
+        <ul class="metrics-list">
+            {% for speaker, metrics in sentiment.items %}
+                <li>{{ speaker }}: Average Polarity: {{ metrics.average_polarity }}, Average Subjectivity: {{ metrics.average_subjectivity }}</li>
+            {% endfor %}
+        </ul>
+    </div>
 </body>
 
 </html>

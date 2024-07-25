@@ -83,14 +83,15 @@
         <button>
         <a href="{% url 'transcript_list'%}">open existing transcript</a>
         <button>
-        <form method="post" enctype="multipart/form-data" action="{% url 'diarize' %}">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <input type="checkbox" id="diarizationCheckbox" name="diarizationCheckbox">
-            <label for="diarizationCheckbox">Speech Diarization</label><br>
-            <button type="submit">Transcribe</button>
-
-        </form>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <label for="diarizationCheckbox">Include Diarization</label>
+                <input type="checkbox" name="diarizationCheckbox" id="diarizationCheckbox">
+                <label for="engagementCheckbox">Calculate Engagement Metrics</label>
+                <input type="checkbox" name="engagementCheckbox" id="engagementCheckbox">
+                <button type="submit">Upload</button>
+            </form>
     </div>
 </body>
 </html>
