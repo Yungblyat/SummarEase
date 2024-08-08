@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "SummarEaseApp",
     "authentication",
     "ParticipantEngagement_SentimentAnalysis",
+    "Todo_list"
 
 ]
 

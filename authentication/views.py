@@ -5,6 +5,13 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from .models import *
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+
+def custom_logout(request):
+    logout(request)
+    return redirect('home')  # Redirect to the home page or any other page after logout
+
 
 # Define a view function for the login page
 def login_page(request):
@@ -69,3 +76,8 @@ def register_page(request):
 	
 	# Render the registration page template (GET request)
 	return render(request, 'register.html')
+
+
+def custom_logout(request):
+    logout(request)
+    return redirect('home')

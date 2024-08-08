@@ -77,8 +77,14 @@
     </style>
 </head>
 <body>
-    <a href="{% url 'home' %}" class="login-btn">Login</a>
+    
     <div class="container">
+        {% if user.is_authenticated %}
+    <p>Welcome, {{ user.username }}!</p>
+    <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+    {% else %}
+    <a href="{% url 'login' %}" class="login-btn">Login</a>
+    {% endif %}
         <h1>Upload Audio File</h1>
         <button>
         <a href="{% url 'transcript_list'%}">open existing transcript</a>
@@ -90,6 +96,11 @@
                 <input type="checkbox" name="diarizationCheckbox" id="diarizationCheckbox">
                 <label for="engagementCheckbox">Calculate Engagement Metrics</label>
                 <input type="checkbox" name="engagementCheckbox" id="engagementCheckbox">
+                <label for="Todo_ListCheckbox">TodoList</label>
+                <input type="checkbox" name="Todo_ListCheckbox" id="Todo_ListCheckbox">
+
+                <label for="SummarizeCheckbox">Summary</label>
+                <input type="checkbox" name="SummarizeCheckbox" id="SummarizeCheckbox">
                 <button type="submit">Upload</button>
             </form>
     </div>

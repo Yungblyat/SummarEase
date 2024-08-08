@@ -14,6 +14,8 @@ from SummarEaseFyp.settings import BASE_DIR
 from ParticipantEngagement_SentimentAnalysis.views import calculate_engagement_metrics, calculate_speech_rate, calculate_interruption_frequency, calculate_sentiment
 from ParticipantEngagement_SentimentAnalysis.models  import ParticipantEngagement
 from collections import defaultdict
+from Todo_list.views import bert_summarize,extract_advanced_todos
+from Todo_list.models import ToDoItem,Summary
 
 #Note: Move the ultity function to a seperate utilty file
 def transcribe(device: str, model, audio_file: str, batch_size=16, compute_type="int8") -> dict:
@@ -65,6 +67,16 @@ def upload_audio(request):
                 speech_rate = None
                 interruptions = None
                 sentiment = None
+                todos=[]
+                summary=''
+                
+                if request.POST.get('Todo_ListCheckbox'):
+                     transcript_text = ''.join([segment.get('text', '') for segment in transcript_content.get("segments", [])])
+                     todos = extract_advanced_todos(transcript_text)
+
+                if request.POST.get('SummarizeCheckbox'):
+                    transcript_text = ''.join([segment.get('text', '') for segment in transcript_content.get("segments", [])])
+                    summary = bert_summarize(transcript_text)
 
                 if "diarization" in output:
                     SpeakerDiarization.objects.create(audio_file=audio_file, content=output["diarization"])
@@ -88,8 +100,14 @@ def upload_audio(request):
                         }
                     )
                 
-                print("Interruptions:", interruptions)  # Debug print statement
-                
+                for todo_content in todos:
+                    ToDoItem.objects.create(audio_file=audio_file, content=todo_content)
+
+                Summary.objects.update_or_create(
+                audio_file=audio_file,
+                defaults={'content': summary}
+            )
+
                 diarization_results = process_diarization_result(diarization_content)
 
                 return render(request, 'SummarEaseApp/results.html', {
@@ -99,7 +117,9 @@ def upload_audio(request):
                     'speech_rate': speech_rate if request.POST.get('engagementCheckbox') else None,
                     'interruptions': interruptions if request.POST.get('engagementCheckbox') else None,
                     'sentiment': sentiment if request.POST.get('engagementCheckbox') else None,
-                    'audio_file': audio_file
+                    'audio_file': audio_file,
+                    'todos': todos if request.POST.get('Todo_ListCheckbox') else None,
+                    'summary': summary if request.POST.get('SummarizeCheckbox') else None
                 })
                 
             except RuntimeError:
@@ -138,7 +158,10 @@ def transcript_list_and_view(request, audio_file_id=None):
     
     transcript_result = None
     diarization_results = None
-    engagement_metrics = None
+    metrics =None
+    speech_rate=None
+    interruptions=None
+    sentiment= None
     selected_audio_file = None
 
     if audio_file_id:
@@ -150,6 +173,10 @@ def transcript_list_and_view(request, audio_file_id=None):
         diarization_results = [f"{segment.get('speaker')}: {segment.get('text').lstrip()}" for segment in diarization.content["segments"]] if diarization else None
         
         # Fetch engagement metrics
+        Summarize=Summary.objects.filter(audio_file=selected_audio_file).first()
+        if Summarize:
+            Summarize=Summarize.content
+
         engagement = ParticipantEngagement.objects.filter(audio_file=selected_audio_file).first()
         if engagement:
                 metrics =engagement.metrics
@@ -157,7 +184,9 @@ def transcript_list_and_view(request, audio_file_id=None):
                 interruptions= engagement.interruptions
                 sentiment= engagement.sentiment
     
-    
+        todos_queryset = ToDoItem.objects.filter(audio_file=selected_audio_file)
+        if todos_queryset:
+            todos = [todo.content for todo in todos_queryset]
     context = {
         'audio_files': audio_files,
         'audio_file': selected_audio_file,
@@ -166,7 +195,9 @@ def transcript_list_and_view(request, audio_file_id=None):
         'interruptions': interruptions,
         'sentiment': sentiment,
         'speech_rate': speech_rate,
-        'metrics':metrics
+        'metrics':metrics,
+        'summary':Summarize,
+        'todos':todos
         
     }
 

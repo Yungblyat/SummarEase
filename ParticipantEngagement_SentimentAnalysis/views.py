@@ -6,6 +6,20 @@ from .models import ParticipantEngagement
 from collections import defaultdict
 from textblob import TextBlob
 
+def categorize_polarity(polarity):
+    if polarity > 0.1:
+        return "Positive"
+    elif polarity < -0.1:
+        return "Negative"
+    else:
+        return "Neutral"
+
+def categorize_subjectivity(subjectivity):
+    if subjectivity > 0.5:
+        return "Subjective"
+    else:
+        return "Objective"
+
 def calculate_engagement_metrics(diarization_content):
     speaker_times = defaultdict(float)
     speaker_turns = defaultdict(int)
@@ -98,10 +112,16 @@ def calculate_sentiment(diarization_content):
     sentiment_data = {}
     for speaker, data in sentiments.items():
         count = data["count"]
+        average_polarity = data["polarity"] / count if count > 0 else 0
+        average_subjectivity = data["subjectivity"] / count if count > 0 else 0
+        
         sentiment_data[speaker] = {
-            "average_polarity": data["polarity"] / count if count > 0 else 0,
-            "average_subjectivity": data["subjectivity"] / count if count > 0 else 0
+            "average_polarity": average_polarity,
+            "average_subjectivity": average_subjectivity,
+            "polarity_label": categorize_polarity(average_polarity),
+            "subjectivity_label": categorize_subjectivity(average_subjectivity)
         }
+
     return sentiment_data
 
 

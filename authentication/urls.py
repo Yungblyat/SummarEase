@@ -4,6 +4,7 @@ from authentication.views import *  # Import views from the authentication app
 from django.conf import settings   # Application settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns  # Static files serving
 from django.conf.urls.static import static
+from django.contrib.auth import views as auth_views
  
 # Define URL patterns
 urlpatterns = [
@@ -11,6 +12,7 @@ urlpatterns = [
     # path("admin/", admin.site.urls),          # Admin interface
     path('login/', login_page, name='login_page'),    # Login page
     path('register/', register_page, name='register'),  # Registration page
+    path('logout/', custom_logout, name='logout'),
 ]
  
 # Serve media files if DEBUG is True (development mode)
