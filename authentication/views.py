@@ -5,10 +5,13 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from .models import *
+from django.contrib.auth import logout
+from django.shortcuts import redirect
 
-# Define a view function for the home page
-def home(request):
-	return render(request, 'login.html')
+def custom_logout(request):
+    logout(request)
+    return redirect('home')  # Redirect to the home page or any other page after logout
+
 
 # Define a view function for the login page
 def login_page(request):
@@ -19,6 +22,7 @@ def login_page(request):
 		
 		# Check if a user with the provided username exists
 		if not User.objects.filter(username=username).exists():
+			print("User does not exist")
 			# Display an error message if the username does not exist
 			messages.error(request, 'Invalid Username')
 			return redirect('/login/')
@@ -68,7 +72,12 @@ def register_page(request):
 		
 		# Display an information message indicating successful account creation
 		messages.info(request, "Account created Successfully!")
-		return redirect('/register/')
+		return redirect('/login/')
 	
 	# Render the registration page template (GET request)
 	return render(request, 'register.html')
+
+
+def custom_logout(request):
+    logout(request)
+    return redirect('home')
