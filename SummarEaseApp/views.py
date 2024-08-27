@@ -1,9 +1,6 @@
 import os
-import time
 import gc
 import torch
-import whisperx
-from django.http import HttpResponse
 from django.conf import settings
 from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -16,22 +13,15 @@ from ParticipantEngagement_SentimentAnalysis.models  import ParticipantEngagemen
 from collections import defaultdict
 from Todo_list.views import bert_summarize,extract_advanced_todos
 from Todo_list.models import ToDoItem,Summary
+from .utils import transcribe, diarize
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 #Note: Move the ultity function to a seperate utilty file
-def transcribe(device: str, model, audio_file: str, batch_size=16, compute_type="int8") -> dict:
-    model = whisperx.load_model(model, device, compute_type=compute_type)
-    audio = whisperx.load_audio(audio_file)
-    result = model.transcribe(audio, batch_size=batch_size)
-    return result
-
-def diarize(auth_key: str, device: str, audio, transcription_result) -> str:
-    result = transcription_result
-    model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
-    result = whisperx.align(result["segments"], model_a, metadata, audio, device, return_char_alignments=False)
-    diarize_model = whisperx.DiarizationPipeline(use_auth_token=auth_key, device=device)
-    diarize_segments = diarize_model(audio)
-    result = whisperx.assign_word_speakers(diarize_segments, result)
-    return result
 
 def main(device: str, model: str, audio_file, transcription_file: bool = False, diarization_file: bool = False) -> dict:
     load_dotenv(f"{BASE_DIR}\\.env")
@@ -46,6 +36,32 @@ def convert_defaultdict_to_dict(d):
     if isinstance(d, defaultdict):
         d = {k: convert_defaultdict_to_dict(v) for k, v in d.items()}
     return d
+
+
+
+class AudioUploadView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser)
+
+    def post(self, request, *args, **kwargs):
+        audio_file = request.FILES['audio']
+        
+        # Process the audio file as needed
+        # Example: Transcription, Diarization, etc.
+        # processed_data = process_audio_file(audio_file)
+        
+        # Simulating processed data
+        processed_data = {
+            'transcription': 'This is a transcription of the uploaded audio.',
+            'duration': '3:45',
+            'other_metrics': {
+                'speech_rate': '120 wpm',
+                'sentiment': 'Positive',
+            }
+        }
+
+        return Response(processed_data)
 
 # @login_required
 def upload_audio(request):
@@ -147,12 +163,12 @@ def process_diarization_result(diarization_result):
         results.append(f"{speaker}: {text}")
     return results
 
-@login_required
+# @login_required
 def transcript_list(request):
     audio_files = AudioFile.objects.filter(user=request.user)
     return render(request, 'SummarEaseApp/transcript_list.html', {'audio_files': audio_files})
 
-@login_required
+# @login_required
 def transcript_list_and_view(request, audio_file_id=None):
     audio_files = AudioFile.objects.filter(user=request.user)
     

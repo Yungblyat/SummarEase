@@ -14,7 +14,7 @@ function ProtectedRoute({children}) {
     const refreshToken = async () => {
         const refreshToken = localStorage.getItem(REFREST_TOKEN)
         try {
-            const res = await api.post("api/token/refresh", {
+            const res = await api.post("/api/user/token/refresh/", {
                 refresh: refreshToken,
             });
             if (res.status === 200) {
@@ -30,23 +30,23 @@ function ProtectedRoute({children}) {
     const auth = async () => {
         const token = localStorage.getItem(ACCESS_TOKEN);
         if (!token) {
-            setIsAuthorized(false)
-            return
+            setIsAuthorized(false);
+            return;
         }
-        const decoded = jwtDecode(token)
-        const tokenExpiration = decoded.exp
-        const now = Date.now() / 1000
+        const decoded = jwtDecode(token);
+        const tokenExpiration = decoded.exp;
+        const now = Date.now() / 1000;
         if (tokenExpiration < now) {
-            await refreshToken()
+            await refreshToken();
         } else {
-            setIsAuthorized(true)
+            setIsAuthorized(true);
         }
     }
 
     if (isAuthorized === null) {
-        return <div>Loading...</div>
+        return <div>Loading...</div>;
     }
-    return isAuthorized ? children : <Navigate to="/login"/>
+    return isAuthorized ? children : <Navigate to="/login"/>;
 }
 
-export default ProtectedRoute
+export default ProtectedRoute;

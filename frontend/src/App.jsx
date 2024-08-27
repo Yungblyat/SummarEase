@@ -5,6 +5,7 @@ import Register from "./pages/Register"
 import Home from "./pages/Home"
 import NotFound from "./pages/NotFound"
 import ProtectedRoute from "./components/ProtectedRoute"
+import UploadAudio from "./components/UploadAudio"
 
 function Logout() {
   localStorage.clear()
@@ -21,17 +22,11 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Home />
-          </ProtectedRoute>
-        }
-        />
+        <Route path="/" element={<ProtectedRoute> <Home /> </ProtectedRoute>}/>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/logout" element={<Logout />} />
+        <Route path="/logout" element={<ProtectedRoute><Logout /></ProtectedRoute>} />
+        <Route path="/upload" element={<UploadAudio />} />
         <Route path="*" element={<NotFound />} />
         
       </Routes>  
