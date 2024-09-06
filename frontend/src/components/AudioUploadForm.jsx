@@ -24,7 +24,7 @@ const AudioUploadForm = () => {
 
         try {
             const token = localStorage.getItem(ACCESS_TOKEN);
-            const response = await api.post('/summarease/api/upload/', formData, {
+            const response = await axios.post('http://127.0.0.1:8000/summarease/api/upload/', formData, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'multipart/form-data',
