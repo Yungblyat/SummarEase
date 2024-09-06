@@ -1,16 +1,19 @@
 from django.contrib import admin  # Django admin module
-from django.urls import path       # URL routing
-from authentication.views import *  # Import views from the authentication app
+from django.urls import path, include       # URL routing
 from django.conf import settings   # Application settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns  # Static files serving
 from django.conf.urls.static import static
- 
+from .views import *
+from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
+
+
 # Define URL patterns
 urlpatterns = [
-    path('', login_page, name="home"),      # Home page
-    path("admin/", admin.site.urls),          # Admin interface
-    path('login/', login_page, name='login_page'),    # Login page
-    path('register/', register_page, name='register'),  # Registration page
+    path("api/user/create/", createUser.as_view(), name="register"),
+    path("api/user/token/", TokenObtainPairView.as_view(), name="get_token"),
+    path("api/user/token/refresh/", TokenRefreshView.as_view(), name="refresh"),
+    path("api/user/user-info", getUserInfo.as_view(), name="user-info"),
+    path("api/api-auth/", include("rest_framework.urls")),
 ]
  
 # Serve media files if DEBUG is True (development mode)

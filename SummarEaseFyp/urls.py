@@ -19,9 +19,10 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('SummarEaseApp/', include('SummarEaseApp.urls')),
+    path('summarease/', include('SummarEaseApp.urls')),
     path('', include('authentication.urls')),  # Include your app's URLs here
 ]
 

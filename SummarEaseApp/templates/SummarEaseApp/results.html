@@ -120,9 +120,28 @@
         <h2>Sentiment Analysis</h2>
         <ul class="metrics-list">
             {% for speaker, metrics in sentiment.items %}
-                <li>{{ speaker }}: Average Polarity: {{ metrics.average_polarity }}, Average Subjectivity: {{ metrics.average_subjectivity }}</li>
+                <li>
+                    {{ speaker }}:
+                    <br> 
+                    Average Polarity: {{ metrics.average_polarity }} ({{ metrics.polarity_label }})
+                    <br>
+                    Average Subjectivity: {{ metrics.average_subjectivity }} ({{ metrics.subjectivity_label }})
+                </li>
+            {% empty %}
+                <li>No sentiment data available</li>
             {% endfor %}
         </ul>
+        
+        <h2>Transcript Summary</h2>
+<p>{{ summary }}</p>
+
+
+<h2>TODO List</h2>
+<ul>
+    {% for todo in todos %}
+    <li>{{ todo }}</li>
+    {% endfor %}
+</ul>
     </div>
 </body>
 
