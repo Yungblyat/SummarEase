@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     "SummarEaseApp",
     "authentication",
     "ParticipantEngagement_SentimentAnalysis",
-    "Todo_list"
+    "Todo_list",
+    "Email",
 
 ]
 
@@ -88,22 +89,22 @@ WSGI_APPLICATION = "SummarEaseFyp.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.mysql",
-        'NAME': 'summarease',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',   # Or your database host
-        'PORT': '3306', 
-    }
-}
 # DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
+#     "default": {
+#         "ENGINE": "django.db.backends.mysql",
+#         'NAME': 'summarease',
+#         'USER': 'root',
+#         'PASSWORD': '',
+#         'HOST': 'localhost',   # Or your database host
+#         'PORT': '3306', 
 #     }
 # }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 
 # DATABASES = {
@@ -143,6 +144,18 @@ TIME_ZONE = "Asia/Karachi"
 USE_I18N = True
 
 USE_TZ = True
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Example: 'smtp.gmail.com' for Gmail
+EMAIL_PORT = 587  # or 465 for SSL
+EMAIL_USE_TLS = True  # Use TLS or SSL depending on your email provider
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = os.getenv("email")  # Your email
+EMAIL_HOST_PASSWORD = os.getenv("password")  # Your email password
+DEFAULT_FROM_EMAIL = os.getenv("email")
 
 
 # Static files (CSS, JavaScript, Images)

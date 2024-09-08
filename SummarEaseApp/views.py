@@ -163,7 +163,9 @@ def transcript_list_and_view(request, audio_file_id=None):
     interruptions=None
     sentiment= None
     selected_audio_file = None
-
+    todos=[]
+    summary = []
+    
     if audio_file_id:
         selected_audio_file = get_object_or_404(AudioFile, id=audio_file_id, user=request.user)
         transcript = getattr(selected_audio_file, 'transcript', None)

@@ -22,7 +22,8 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('SummarEaseApp/', include('SummarEaseApp.urls')),
-    path('', include('authentication.urls')),  # Include your app's URLs here
+    path('', include('authentication.urls')),
+    path('',include('Email.urls'))  # Include your app's URLs here
 ]
 
 if settings.DEBUG:
