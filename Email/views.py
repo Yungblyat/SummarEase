@@ -131,12 +131,3 @@ def generate_pdf(request):
     
     return HttpResponse('Invalid request', status=400)
 
-def send_test_email(request):
-    send_mail(
-        'Test Email',  # Subject
-        'This is a test email.',  # Message
-        'jimmysins42069@gmail.com',  # From email (replace with your email)
-        ['HumairHussain100@gmail.com'],  # To email (replace with the recipient email)
-        fail_silently=False,
-    )
-    return HttpResponse('Email sent successfully!')
