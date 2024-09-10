@@ -1,0 +1,5 @@
+.env
+db.sqlite3
+authentication/__pycache__
+SummarEaseFyp/__pycache__
+

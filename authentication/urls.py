@@ -5,15 +5,16 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns  # Static fi
 from django.conf.urls.static import static
 from .views import *
 from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
+from .views import CustomTokenObtainPairView
 
 
 # Define URL patterns
 urlpatterns = [
-    path("api/user/create/", createUser.as_view(), name="register"),
-    path("api/user/token/", TokenObtainPairView.as_view(), name="get_token"),
-    path("api/user/token/refresh/", TokenRefreshView.as_view(), name="refresh"),
-    path("api/user/user-info", getUserInfo.as_view(), name="user-info"),
-    path("api/api-auth/", include("rest_framework.urls")),
+    path("user/create/", createUser.as_view(), name="register"),
+    path("user/token/", CustomTokenObtainPairView.as_view(), name="get_token"),
+    path("user/token/refresh/", TokenRefreshView.as_view(), name="refresh"),
+    path("user/user-info", getUserInfo.as_view(), name="user-info"),
+    path("api-auth/", include("rest_framework.urls")),
 ]
  
 # Serve media files if DEBUG is True (development mode)

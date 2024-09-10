@@ -23,7 +23,7 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('summarease/', include('SummarEaseApp.urls')),
-    path('', include('authentication.urls')),  # Include your app's URLs here
+    path('auth/', include('authentication.urls')),  # Include your app's URLs here
 ]
 
 if settings.DEBUG:

@@ -159,6 +159,7 @@ def convert_defaultdict_to_dict(d):
 @permission_classes([IsAuthenticated])
 @csrf_exempt
 def upload_audio(request):
+    print(request.POST.get())
     if request.method == 'POST':
         form = AudioFileForm(request.POST, request.FILES)
         if form.is_valid():
