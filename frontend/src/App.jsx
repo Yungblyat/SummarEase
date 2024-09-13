@@ -1,18 +1,26 @@
 
-import React from 'react'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
-import Home from './pages/Home'
-import ResultsPage from './pages/ResultsPage'
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Home from './pages/Home';
+import ResultsPage from './components/ResultsPage';
+import ProtectedRoute from './components/ProtectedRoute';
 
 export default function App() {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/results" element={<ResultsPage />} />
-      </Routes>
-    </Router>
-  )
+    return (
+        <Router>
+            <Routes>
+                <Route path="/" element={<Home />} />
+                <Route
+                    path="/results"
+                    element={
+                        <ProtectedRoute>
+                            <ResultsPage />
+                        </ProtectedRoute>
+                    }
+                />
+            </Routes>
+        </Router>
+    );
 }
 // import React from "react"
 // import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"

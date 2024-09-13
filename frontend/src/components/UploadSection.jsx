@@ -1,10 +1,9 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { Upload, FileUp, CheckSquare, BarChart2, ListTodo } from 'lucide-react'
-import axios from 'axios'
-import api from "../api"
+import api from '../api'
+import { useNavigate } from 'react-router-dom'
 
-export default function UploadSection() {
+export default function UploadSection({ isLoggedIn, onLoginRequired }) {
   const [file, setFile] = useState(null)
   const [options, setOptions] = useState({
     summary: true,
@@ -30,6 +29,11 @@ export default function UploadSection() {
   }
 
   const handleUpload = async () => {
+    if (!isLoggedIn) {
+      onLoginRequired()
+      return
+    }
+
     if (file) {
       setIsUploading(true)
       setError(null)
@@ -46,6 +50,7 @@ export default function UploadSection() {
         })
 
         console.log('Upload successful:', response.data)
+        // Navigate to results page with the response data
         navigate('/results', { state: { result: response.data } })
       } catch (err) {
         console.error('Error uploading file:', err)
@@ -103,8 +108,10 @@ export default function UploadSection() {
           </div>
           <button
             onClick={handleUpload}
-            className={`w-full bg-purple-800 hover:bg-purple-900 text-white font-bold py-2 px-4 rounded-full flex items-center justify-center ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
-            disabled={!file || isUploading}
+            className={`w-full bg-purple-800 hover:bg-purple-900 text-white font-bold py-2 px-4 rounded-full flex items-center justify-center ${
+              isUploading || !file ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+            disabled={isUploading || !file}
           >
             {isUploading ? (
               <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

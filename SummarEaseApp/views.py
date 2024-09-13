@@ -24,6 +24,7 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.views.decorators.csrf import csrf_exempt
+import json
 
 #Note: Move the ultity function to a seperate utilty file
 
@@ -159,7 +160,7 @@ def convert_defaultdict_to_dict(d):
 @permission_classes([IsAuthenticated])
 @csrf_exempt
 def upload_audio(request):
-    print(request.POST.get())
+    options = json.loads(request.POST.get("options"))
     if request.method == 'POST':
         form = AudioFileForm(request.POST, request.FILES)
         if form.is_valid():
@@ -173,7 +174,7 @@ def upload_audio(request):
                     model="base",
                     audio_file=file_path,
                     transcription_file=True,
-                    diarization_file=request.POST.get('diarizationCheckbox')
+                    diarization_file=options["diarization"]
                 )
                 
                 transcript_content = output.get("transcription")
@@ -187,19 +188,18 @@ def upload_audio(request):
                 todos = []
                 summary = ''
                 
-                if request.POST.get('Todo_ListCheckbox'):
+                if options["todo"]:
                     transcript_text = ''.join([segment.get('text', '') for segment in transcript_content.get("segments", [])])
                     todos = extract_advanced_todos(transcript_text)
 
-                if request.POST.get('SummarizeCheckbox'):
+                if options["summary"]:
                     transcript_text = ''.join([segment.get('text', '') for segment in transcript_content.get("segments", [])])
                     summary = bert_summarize(transcript_text)
-
                 if "diarization" in output:
                     SpeakerDiarization.objects.create(audio_file=audio_file, content=output.get("diarization"))
                     diarization_content = output.get("diarization")
-
-                if request.POST.get('engagementCheckbox') and diarization_content:
+                # if options["engagement"] and diarization_content:
+                if options["engagement"]:
                     metrics = calculate_engagement_metrics(diarization_content)
                     speech_rate = calculate_speech_rate(diarization_content)
                     interruptions = calculate_interruption_frequency(diarization_content)
@@ -216,7 +216,6 @@ def upload_audio(request):
                             'sentiment': sentiment
                         }
                     )
-                
                 for todo_content in todos:
                     ToDoItem.objects.create(audio_file=audio_file, content=todo_content)
 
@@ -230,13 +229,13 @@ def upload_audio(request):
                 return JsonResponse({
                     'diarization_results': diarization_results,
                     'transcript_result': ''.join([f"{segment.get('text').lstrip()}" for segment in transcript_content.get("segments", [])]),
-                    'metrics': metrics if request.POST.get('engagementCheckbox') else None,
-                    'speech_rate': speech_rate if request.POST.get('engagementCheckbox') else None,
-                    'interruptions': interruptions if request.POST.get('engagementCheckbox') else None,
-                    'sentiment': sentiment if request.POST.get('engagementCheckbox') else None,
+                    'metrics': metrics if options["engagement"] else None,
+                    'speech_rate': speech_rate if options["engagement"] else None,
+                    'interruptions': interruptions if options["engagement"] else None,
+                    'sentiment': sentiment if options["engagement"] else None,
                     'audio_file': audio_file.id,
-                    'todos': todos if request.POST.get('Todo_ListCheckbox') else None,
-                    'summary': summary if request.POST.get('SummarizeCheckbox') else None
+                    'todos': todos if options["todo"] else None,
+                    'summary': summary if options["summary"] else None
                 }, status=200)
                 
             except RuntimeError:
