@@ -64,15 +64,15 @@ def calculate_speech_rate(diarization_content):
         end = segment.get("end", 0)
 
         # Log information for debugging
-        print(f"Processing segment - Speaker: {speaker}, Text: '{text}', Start: {start}, End: {end}")
+        # print(f"Processing segment - Speaker: {speaker}, Text: '{text}', Start: {start}, End: {end}")
 
         if speaker:
             word_counts[speaker] += len(text.split())
             speaker_times[speaker] += end - start
 
     # Log the counts and times for debugging
-    print("Word Counts:", dict(word_counts))
-    print("Speaker Times:", dict(speaker_times))
+    # print("Word Counts:", dict(word_counts))
+    # print("Speaker Times:", dict(speaker_times))
 
     speech_rate = {}
     for speaker, word_count in word_counts.items():
@@ -98,30 +98,58 @@ def calculate_interruption_frequency(diarization_content):
         previous_speaker = speaker
     return interruptions
 
+# def calculate_sentiment(diarization_content):
+#     sentiments = defaultdict(lambda: {"polarity": 0, "subjectivity": 0, "count": 0})
+
+#     for segment in diarization_content["segments"]:
+#         speaker = segment.get("speaker", "Unknown")
+#         text = segment["text"]
+#         blob = TextBlob(text)
+#         sentiments[speaker]["polarity"] += blob.sentiment.polarity
+#         sentiments[speaker]["subjectivity"] += blob.sentiment.subjectivity
+#         sentiments[speaker]["count"] += 1
+
+#     sentiment_data = {}
+#     for speaker, data in sentiments.items():
+#         count = data["count"]
+#         average_polarity = data["polarity"] / count if count > 0 else 0
+#         average_subjectivity = data["subjectivity"] / count if count > 0 else 0
+        
+#         sentiment_data[speaker] = {
+#             "average_polarity": average_polarity,
+#             "average_subjectivity": average_subjectivity,
+#             "polarity_label": categorize_polarity(average_polarity),
+#             "subjectivity_label": categorize_subjectivity(average_subjectivity)
+#         }
+
+#     return sentiment_data
+
 def calculate_sentiment(diarization_content):
-    sentiments = defaultdict(lambda: {"polarity": 0, "subjectivity": 0, "count": 0})
+    total_sentiments = {"positive": 0, "negative": 0, "neutral": 0}
+    total_count = 0
 
     for segment in diarization_content["segments"]:
-        speaker = segment.get("speaker", "Unknown")
         text = segment["text"]
         blob = TextBlob(text)
-        sentiments[speaker]["polarity"] += blob.sentiment.polarity
-        sentiments[speaker]["subjectivity"] += blob.sentiment.subjectivity
-        sentiments[speaker]["count"] += 1
-
-    sentiment_data = {}
-    for speaker, data in sentiments.items():
-        count = data["count"]
-        average_polarity = data["polarity"] / count if count > 0 else 0
-        average_subjectivity = data["subjectivity"] / count if count > 0 else 0
+        polarity = blob.sentiment.polarity
+        total_count += 1
         
-        sentiment_data[speaker] = {
-            "average_polarity": average_polarity,
-            "average_subjectivity": average_subjectivity,
-            "polarity_label": categorize_polarity(average_polarity),
-            "subjectivity_label": categorize_subjectivity(average_subjectivity)
-        }
+        if polarity > 0:
+            total_sentiments["positive"] += 1
+        elif polarity < 0:
+            total_sentiments["negative"] += 1
+        else:
+            total_sentiments["neutral"] += 1
 
-    return sentiment_data
+    average_positive = (total_sentiments["positive"] / total_count) * 100 if total_count > 0 else 0
+    average_negative = (total_sentiments["negative"] / total_count) * 100 if total_count > 0 else 0
+    average_neutral = (total_sentiments["neutral"] / total_count) * 100 if total_count > 0 else 0
+
+    return {
+        "average_positive": round(average_positive, 2),
+        "average_negative": round(average_negative, 2),
+        "average_neutral": round(average_neutral, 2),
+    }
+
 
 

@@ -24,6 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('summarease/', include('SummarEaseApp.urls')),
     path('auth/', include('authentication.urls')),  # Include your app's URLs here
+    path('email/', include('Email.urls')),
 ]
 
 if settings.DEBUG:

@@ -47,7 +47,7 @@ export default function Home() {
   }
 
   const handleSignOut = () => {
-    localStorage.removeItem(ACCESS_TOKEN)
+    localStorage.clear()
     setUser(null)
     setIsDropdownOpen(false)
   }

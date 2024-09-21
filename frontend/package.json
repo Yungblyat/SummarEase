@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^2.1.6",
+    "@react-pdf/renderer": "^3.4.4",
     "axios": "^1.7.4",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.439.0",

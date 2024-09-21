@@ -55,7 +55,6 @@ const MyDocument = ({ sections }) => (
           {section.key === 'diarization' ? (
             Object.entries(section.content).map(([speaker, text], index) => (
               <Text key={index} style={styles.content}>
-                
                 {cleanDataForPDF(text)}
               </Text>
             ))
@@ -63,28 +62,6 @@ const MyDocument = ({ sections }) => (
             section.content.map((todo, index) => (
               <Text key={index} style={styles.content}>
                 {`${index + 1}. ${cleanDataForPDF(todo)}`}
-              </Text>
-            ))
-          ) : section.key === 'sentiment' ? (
-            Object.entries(section.content).map(([key, value], index) => (
-              <Text key={index} style={styles.content}>
-                {`${key}: ${value.toFixed(2)}%`}
-              </Text>
-            ))
-          ) : section.key === 'speechRate' ? (
-            Object.entries(section.content).map(([speaker, data], index) => (
-              <Text key={index} style={styles.content}>
-                <Text style={styles.speakerText}>{speaker}:</Text>
-                {`${data.speech_rate.toFixed(2)} words per minute`}
-              </Text>
-            ))
-          ) : section.key === 'interruptions' ? (
-            Object.entries(section.content).map(([speaker, data], index) => (
-              <Text key={index} style={styles.content}>
-                <Text style={styles.speakerText}>{speaker} interrupted:</Text>
-                {Object.entries(data).map(([interruptedSpeaker, count], i, arr) => (
-                  `${interruptedSpeaker} ${count} time(s)${i < arr.length - 1 ? ', ' : ''}`
-                )).join('')}
               </Text>
             ))
           ) : (
@@ -359,4 +336,3 @@ const ResultsPage = () => {
 };
 
 export default ResultsPage;
-
