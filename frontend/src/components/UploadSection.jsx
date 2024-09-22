@@ -46,7 +46,7 @@ export default function UploadSection({ isLoggedIn, onLoginRequired }) {
         const response = await api.post('/summarease/upload/', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
-          }
+          },timeout: 300000
         })
         localStorage.removeItem(FILE_ID)
         localStorage.setItem(FILE_ID, response.data.audio_file)

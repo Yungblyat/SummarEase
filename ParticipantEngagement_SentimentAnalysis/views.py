@@ -27,7 +27,7 @@ def calculate_engagement_metrics(diarization_content):
     current_start = None
 
     for segment in diarization_content["segments"]:
-        speaker = segment["speaker"]
+        speaker = segment.get("speaker", "Unknown")
         start = segment["start"]
         end = segment["end"]
 
@@ -85,18 +85,31 @@ def calculate_speech_rate(diarization_content):
 
     return speech_rate
 
+from collections import defaultdict
+
 def calculate_interruption_frequency(diarization_content):
     interruptions = defaultdict(lambda: defaultdict(int))
     previous_speaker = None
 
     for segment in diarization_content["segments"]:
-        speaker = segment["speaker"]
+        speaker = segment.get("speaker", "Unknown")
+
+        # Skip "Unknown" speakers if you want to ignore them in interruption calculation
+        if speaker == "Unknown":
+            continue
 
         if previous_speaker and previous_speaker != speaker:
             interruptions[previous_speaker][speaker] += 1
 
         previous_speaker = speaker
-    return interruptions
+
+    # Optionally handle interruptions involving "Unknown" speakers
+    if "Unknown" in interruptions:
+        unknown_interruptions = interruptions["Unknown"]
+        interruptions["Unknown"] = dict(unknown_interruptions)
+
+    return {speaker: dict(interrupted_speakers) for speaker, interrupted_speakers in interruptions.items()}
+
 
 # def calculate_sentiment(diarization_content):
 #     sentiments = defaultdict(lambda: {"polarity": 0, "subjectivity": 0, "count": 0})

@@ -24,6 +24,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from .serializers import AudioFileSerializer
 
+
 #Note: Move the ultity function to a seperate utilty file
 
 def main(device: str, model: str, audio_file, transcription_file: bool = False, diarization_file: bool = False) -> dict:
@@ -39,6 +40,8 @@ def convert_defaultdict_to_dict(d):
     if isinstance(d, defaultdict):
         d = {k: convert_defaultdict_to_dict(v) for k, v in d.items()}
     return d
+
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -82,13 +85,33 @@ def upload_audio(request):
                 if "diarization" in output:
                     SpeakerDiarization.objects.create(audio_file=audio_file, content=output.get("diarization"))
                     diarization_content = output.get("diarization")
+                    
 
                 if options["engagement"] and diarization_content:
-                    interruptions = calculate_interruption_frequency(diarization_content)
-                    metrics = calculate_engagement_metrics(diarization_content)
-                    speech_rate = calculate_speech_rate(diarization_content)
-                    sentiment = calculate_sentiment(diarization_content)
-                    interruptions = convert_defaultdict_to_dict(interruptions)
+                    try:
+                         interruptions = calculate_interruption_frequency(diarization_content)
+                         print("Interruptions calculated successfully:", interruptions)
+                    except Exception as e:
+                     print("Error in calculating interruptions:", e)
+
+                    try:
+                        metrics = calculate_engagement_metrics(diarization_content)
+                        print("Metrics calculated successfully:", metrics)
+                    except Exception as e:
+                        print("Error in calculating metrics:", e)
+
+                    try:
+                        sentiment = calculate_sentiment(diarization_content)
+                        print("Sentiment calculated successfully:", sentiment)
+                    except Exception as e:
+                        print("Error in calculating sentiment:", e)
+
+                    try:
+                        speech_rate = calculate_speech_rate(diarization_content)
+                        print("Speechrate calculated successfully:", speech_rate)
+                    except Exception as e:
+                        print("Error in calculating sentiment:", e)
+
                     ParticipantEngagement.objects.update_or_create(
                         audio_file=audio_file,
                         defaults={
@@ -130,6 +153,8 @@ def upload_audio(request):
             return JsonResponse({'error': "Invalid form submission"}, status=400)
    
     return JsonResponse({'error': "Invalid request method"}, status=405)
+
+
 
 
 
