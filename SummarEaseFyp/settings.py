@@ -15,12 +15,7 @@ import os
 from dotenv import load_dotenv
 from datetime import timedelta
 
-
-
-
 #path for media directory
-
-
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -34,7 +29,7 @@ load_dotenv(f"{BASE_DIR}\\.env")
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -48,8 +43,8 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=2),
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
     'ACCESS_TOKEN_PAYLOAD_HANDLER': 'authentication.utils.custom_payload_handler',

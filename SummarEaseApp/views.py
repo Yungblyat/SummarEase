@@ -58,9 +58,8 @@ def upload_audio(request):
                     model="base",
                     audio_file=file_path,
                     transcription_file=True,
-                    diarization_file=True
+                    diarization_file=options.get("diarization")
                 )
-                
                 transcript_content = output.get("transcription")
                 Transcript.objects.create(audio_file=audio_file, content=transcript_content)
 
@@ -83,8 +82,8 @@ def upload_audio(request):
                 if "diarization" in output:
                     SpeakerDiarization.objects.create(audio_file=audio_file, content=output.get("diarization"))
                     diarization_content = output.get("diarization")
-                # if options["engagement"] and diarization_content:
-                if options["engagement"]:
+
+                if options["engagement"] and diarization_content:
                     interruptions = calculate_interruption_frequency(diarization_content)
                     metrics = calculate_engagement_metrics(diarization_content)
                     speech_rate = calculate_speech_rate(diarization_content)
@@ -108,7 +107,6 @@ def upload_audio(request):
                 )
 
                 diarization_results = process_diarization_result(diarization_content)
-
                 return JsonResponse({
                     'diarization_results': diarization_results,
                     'transcript_result': ''.join([f"{segment.get('text').lstrip()}" for segment in transcript_content.get("segments", [])]),
@@ -175,12 +173,12 @@ def show_result_for_file(request):
         diarization_results = [f"{segment.get('speaker')}: {segment.get('text').lstrip()}" for segment in diarization.content["segments"]]
 
         # Fetch summary if available
-        summary_instance = Summary.objects.filter(audio_file=audio_file).first()
+    summary_instance = Summary.objects.filter(audio_file=audio_file).first()
     if summary_instance:
         summary = summary_instance.content
 
         # Fetch engagement metrics if available
-        engagement = ParticipantEngagement.objects.filter(audio_file=audio_file).first()
+    engagement = ParticipantEngagement.objects.filter(audio_file=audio_file).first()
     if engagement:
         # metrics = engagement.metrics
         speech_rate = engagement.speech_rate
@@ -209,7 +207,6 @@ def show_result_for_file(request):
 @csrf_exempt
 def delete_audio_file(request):
     audio_file_id = request.data.get('audio_file_id')
-    print(audio_file_id)
     if audio_file_id:
         audio_file = get_object_or_404(AudioFile, id=audio_file_id, user=request.user)
         if audio_file:

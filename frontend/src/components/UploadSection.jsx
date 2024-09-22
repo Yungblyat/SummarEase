@@ -48,8 +48,6 @@ export default function UploadSection({ isLoggedIn, onLoginRequired }) {
             'Content-Type': 'multipart/form-data'
           }
         })
-
-        console.log('Upload successful:', response.data)
         // Navigate to results page with the response data
         navigate('/results', { state: { result: response.data } })
       } catch (err) {
@@ -59,6 +57,19 @@ export default function UploadSection({ isLoggedIn, onLoginRequired }) {
         setIsUploading(false)
       }
     }
+  }
+
+  const handleOptionChange = (key) => {
+    setOptions(prev => {
+      const newOptions = { ...prev, [key]: !prev[key] }
+      
+      // If diarization is unchecked, also uncheck engagement
+      if (key === 'diarization' && !newOptions.diarization) {
+        newOptions.engagement = false
+      }
+      
+      return newOptions
+    })
   }
 
   return (
@@ -91,12 +102,18 @@ export default function UploadSection({ isLoggedIn, onLoginRequired }) {
           </div>
           <div className="space-y-2 mb-4">
             {Object.entries(options).map(([key, value]) => (
-              <label key={key} className="flex items-center space-x-2 text-purple-200">
+              <label 
+                key={key} 
+                className={`flex items-center space-x-2 text-purple-200 ${
+                  key === 'engagement' && !options.diarization ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
                 <input
                   type="checkbox"
                   checked={value}
-                  onChange={() => setOptions(prev => ({ ...prev, [key]: !prev[key] }))}
+                  onChange={() => handleOptionChange(key)}
                   className="form-checkbox h-5 w-5 text-purple-500"
+                  disabled={key === 'engagement' && !options.diarization}
                 />
                 <span className="capitalize">{key}</span>
                 {key === 'summary' && <FileUp className="h-4 w-4" />}

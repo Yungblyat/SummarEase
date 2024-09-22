@@ -29,7 +29,6 @@ function History() {
     setError(null);
     try {
       const response = await api.post('/summarease/process/', { audio_file_id: fileId });
-      console.log(`File processed successfully ${JSON.stringify(response.data)}`);
       navigate('/results', { state: { result: response.data } });
     } catch (error) {
       console.error('Error processing file:', error);
@@ -58,7 +57,7 @@ function History() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 to-indigo-800 text-white p-6">
       <div className="max-w-4xl mx-auto">
-        <h2 className="text-4xl font-bold mb-8 text-center">History</h2>
+        <h1 className="text-4xl font-bold mb-8 text-center">History</h1>
         {error && (
           <p className="text-red-300 mb-4 p-3 bg-red-900 bg-opacity-50 rounded" role="alert">
             {error}
