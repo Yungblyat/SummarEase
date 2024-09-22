@@ -1,8 +1,14 @@
 from django.db import models
-from django.contrib.auth.models import User
+from SummarEaseApp.models import AudioFile
+import json
 
 # Create your models here.
-class ToDoList(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    task = models.CharField(max_length=200)
-    priority = models.IntegerField(default=1)
+class ToDoItem(models.Model):
+    audio_file = models.ForeignKey(AudioFile, on_delete=models.CASCADE, related_name='todo_items')
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class Summary(models.Model):
+    audio_file = models.OneToOneField(AudioFile, on_delete=models.CASCADE, related_name='summary')
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)

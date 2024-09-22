@@ -1,23 +1,148 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Diarization Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(90deg, #08203e 0%, #557c93 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow-y: auto;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 80%;
+            max-width: 600px;
+            text-align: left;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+        .container h1 {
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 5px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .container p {
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 10px;
+            border-radius: 5px;
+            white-space: pre-wrap; /* ensures text wraps and new lines are respected */
+            word-wrap: break-word; /* ensures long words will break to fit in the container */
+        }
+        .container ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .container li {
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            white-space: pre-wrap; /* ensures text wraps and new lines are respected */
+            word-wrap: break-word; /* ensures long words will break to fit in the container */
+        }
+        .container p.no-result {
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>Transcription and Diarization Results</h1>
+        
+        
+        {% if audio_file %}
+            <h2>Results for {{ audio_file.file.name }}</h2>
+            <h3>Transcription Results</h3>
+            <p>{{ transcript_result }}</p>
 
-    <h1>Transcription Results</h1>
-    <p>{{ trancript_result }}</p>
+            <h3>Diarization Results</h3>
+            {% if diarization_results %}
+                <ul>
+                    {% for result in diarization_results %}
+                        <li>{{ result }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="no-result">No Diarization result</p>
+            {% endif %}
+        {% endif %}
+    </div>
+    <div class="container">
+        <h1>Participant Engagement Metrics for {{ audio_file.file.name }}</h1>
 
-    <h1>Diarization Results</h1>
-    {% if diarization_results%}
-    <ul>
-        {% for result in diarization_results %}
-            <li>{{ result }}</li>
+        <h2>Engagement Metrics</h2>
+        <ul class="metrics-list">
+            {% for speaker, metrics in metrics.items %}
+                <li>{{ speaker }}: Total Time: {{ metrics.total_time }}s, Turns: {{ metrics.turns }}, Average Time Per Turn: {{ metrics.average_time_per_turn }}s</li>
+            {% endfor %}
+        </ul>
+        
+        <h2>Speech Rate</h2>
+        <ul class="metrics-list">
+            {% for speaker, metrics in speech_rate.items %}
+                <li>{{ speaker }}: Speech Rate: {{ metrics.speech_rate }} words/minute</li>
+            {% endfor %}
+        </ul>
+
+        <h2>Interruption Frequency</h2>
+{% if interruptions %}
+    <ul class="metrics-list">
+        {% for speaker, interruption_counts in interruptions.items %}
+            {% for interrupted_speaker, count in interruption_counts.items %}
+                <li>{{ speaker }} interrupted {{ interrupted_speaker }} {{ count }} times</li>
+            {% endfor %}
         {% endfor %}
     </ul>
-    {% else %}
-    <p>No Diarization result</p>
-    {% endif %}
+{% else %}
+    <p class="no-result">No Interruption data</p>
+{% endif %}
+        
+        <h2>Sentiment Analysis</h2>
+        <ul class="metrics-list">
+            {% for speaker, metrics in sentiment.items %}
+                <li>
+                    {{ speaker }}:
+                    <br> 
+                    Average Polarity: {{ metrics.average_polarity }} ({{ metrics.polarity_label }})
+                    <br>
+                    Average Subjectivity: {{ metrics.average_subjectivity }} ({{ metrics.subjectivity_label }})
+                </li>
+            {% empty %}
+                <li>No sentiment data available</li>
+            {% endfor %}
+        </ul>
+        
+        <h2>Transcript Summary</h2>
+<p>{{ summary }}</p>
 
+
+<h2>TODO List</h2>
+<ul>
+    {% for todo in todos %}
+    <li>{{ todo }}</li>
+    {% endfor %}
+</ul>
+    </div>
 </body>
+
 </html>
