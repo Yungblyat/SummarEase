@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Upload, FileUp, CheckSquare, BarChart2, ListTodo } from 'lucide-react'
 import api from '../api'
 import { useNavigate } from 'react-router-dom'
+import { FILE_ID } from '../constants'
 
 export default function UploadSection({ isLoggedIn, onLoginRequired }) {
   const [file, setFile] = useState(null)
@@ -14,7 +15,6 @@ export default function UploadSection({ isLoggedIn, onLoginRequired }) {
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState(null)
   const navigate = useNavigate()
-
   const handleFileChange = (event) => {
     if (event.target.files && event.target.files[0]) {
       setFile(event.target.files[0])
@@ -48,6 +48,8 @@ export default function UploadSection({ isLoggedIn, onLoginRequired }) {
             'Content-Type': 'multipart/form-data'
           }
         })
+        localStorage.removeItem(FILE_ID)
+        localStorage.setItem(FILE_ID, response.data.audio_file)
         // Navigate to results page with the response data
         navigate('/results', { state: { result: response.data } })
       } catch (err) {

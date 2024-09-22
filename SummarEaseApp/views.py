@@ -153,7 +153,6 @@ def history(request):
     
     # Serialize the audio files
     serializer = AudioFileSerializer(audio_files, many=True)
-    
     # Return the serialized data
     return Response({'audio_files': serializer.data})
 
@@ -199,6 +198,7 @@ def show_result_for_file(request):
         'sentiment': sentiment if engagement else None,
         'summary': summary if summary else None,
         'todos': todos if todos else None,
+        'audio_file': file_id,
     }
     return Response(response_data, status=status.HTTP_200_OK)
 

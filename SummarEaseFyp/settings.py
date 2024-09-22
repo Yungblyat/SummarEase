@@ -28,6 +28,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(f"{BASE_DIR}\\.env")
 SECRET_KEY = os.getenv("SECRET_KEY")
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")  # Your email
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")  # Your email password
+DEFAULT_FROM_EMAIL = os.getenv("EMAIL_HOST_USER")
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
@@ -43,8 +52,8 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=2),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
     'ACCESS_TOKEN_PAYLOAD_HANDLER': 'authentication.utils.custom_payload_handler',

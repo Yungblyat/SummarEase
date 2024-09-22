@@ -4,6 +4,7 @@ import { CheckCircle, ChevronDown, ChevronUp, Copy, Download, Mail } from 'lucid
 import { Document, Page, Text, View, StyleSheet, PDFDownloadLink } from '@react-pdf/renderer';
 import EmailModal from './EmailModal';
 
+
 // Define styles for PDF
 const styles = StyleSheet.create({
   page: {

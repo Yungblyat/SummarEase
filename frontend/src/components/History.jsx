@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
-import api from '../api'; // Assuming you have an api.js file for axios configuration
+import api from '../api';
+import { FILE_ID } from '../constants';
 
 function History() {
   const [audioFiles, setAudioFiles] = useState([]);
@@ -28,6 +29,8 @@ function History() {
     setLoading(true);
     setError(null);
     try {
+      localStorage.removeItem(FILE_ID)
+      localStorage.setItem(FILE_ID, fileId)
       const response = await api.post('/summarease/process/', { audio_file_id: fileId });
       navigate('/results', { state: { result: response.data } });
     } catch (error) {
