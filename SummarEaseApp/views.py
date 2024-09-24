@@ -96,19 +96,19 @@ def upload_audio(request):
 
                     try:
                         metrics = calculate_engagement_metrics(diarization_content)
-                        print("Metrics calculated successfully:", metrics)
+                        print("Metrics calculated successfully:")
                     except Exception as e:
                         print("Error in calculating metrics:", e)
 
                     try:
                         sentiment = calculate_sentiment(diarization_content)
-                        print("Sentiment calculated successfully:", sentiment)
+                        print("Sentiment calculated successfully:")
                     except Exception as e:
                         print("Error in calculating sentiment:", e)
 
                     try:
                         speech_rate = calculate_speech_rate(diarization_content)
-                        print("Speechrate calculated successfully:", speech_rate)
+                        print("Speechrate calculated successfully:")
                     except Exception as e:
                         print("Error in calculating sentiment:", e)
 

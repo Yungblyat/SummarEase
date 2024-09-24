@@ -10,6 +10,9 @@ from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import CustomTokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
@@ -32,3 +35,26 @@ class getUserInfo(APIView):
 # @permission_classes([IsAuthenticated])
 # def check_token(request):
 # 	return Response(f"Passed for {request.user.email}")
+class GoogleLoginView(APIView):
+    def post(self, request):
+        token = request.data.get("token")
+        try:
+            # Verify Google token
+            idinfo = id_token.verify_oauth2_token(token, google_requests.Request())
+            email = idinfo["email"]
+
+            # Check if user exists
+            user, created = User.objects.get_or_create(email=email, defaults={"username": email})
+            if created:
+                # Do anything extra like linking Google profile, etc.
+                user.set_unusable_password()
+                user.save()
+
+            # Generate JWT tokens
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            })
+        except ValueError:
+            return Response({'error': 'Invalid Google token'}, status=400)

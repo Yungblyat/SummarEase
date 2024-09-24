@@ -57,6 +57,7 @@ SIMPLE_JWT = {
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
     'ACCESS_TOKEN_PAYLOAD_HANDLER': 'authentication.utils.custom_payload_handler',
+    'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
 
@@ -78,6 +79,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "Email",
+    'social_django',
 ]
 
 MIDDLEWARE = [
@@ -184,3 +186,10 @@ CORS_ALLOWS_CREDENTIALS = True
 FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50 MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800 
 
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '<Your Google Client ID>'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '<Your Google Client Secret>'

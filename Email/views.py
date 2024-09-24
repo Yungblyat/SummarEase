@@ -63,11 +63,6 @@ def send_email(request):
     email_subject = f"Meeting Results for {selected_audio_file.file.name}"
     email_body = render_to_string('email.html', {
         'audio_file': selected_audio_file,
-        'transcript_result': transcript_result,
-        'diarization_results': diarization_results,
-        'metrics': metrics,
-        'speech_rate': speech_rate,
-        'interruptions': interruptions,
         'sentiment': sentiment,
         'todos': todos,
         'summary': Summarize

@@ -138,10 +138,12 @@ def calculate_interruption_frequency(diarization_content):
 
 #     return sentiment_data
 
+from transformers import pipeline
+
 def calculate_sentiment(diarization_content):
     # Load the sentiment-analysis pipeline from transformers
-    sentiment_pipeline = pipeline("sentiment-analysis")
-    
+    sentiment_pipeline = pipeline("sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english")
+
     total_sentiments = {"positive": 0, "negative": 0, "neutral": 0}
     total_count = 0
 
@@ -150,13 +152,16 @@ def calculate_sentiment(diarization_content):
         result = sentiment_pipeline(text)[0]  # Get the first result from the pipeline
         
         total_count += 1
+
+        # Use score (polarity) to classify into positive, neutral, and negative
+        score = result['score']
+        label = result['label']
         
-        # Check the label returned by the sentiment analysis model
-        if result['label'] == 'POSITIVE':
+        if label == 'POSITIVE' and score > 0.3:
             total_sentiments["positive"] += 1
-        elif result['label'] == 'NEGATIVE':
+        elif label == 'NEGATIVE' and score < -0.3:
             total_sentiments["negative"] += 1
-        else:  # Assuming NEUTRAL is not always available; you may need to adjust based on your model
+        else:
             total_sentiments["neutral"] += 1
 
     average_positive = (total_sentiments["positive"] / total_count) * 100 if total_count > 0 else 0
@@ -168,6 +173,7 @@ def calculate_sentiment(diarization_content):
         "average_negative": round(average_negative, 2),
         "average_neutral": round(average_neutral, 2),
     }
+
 
 
 

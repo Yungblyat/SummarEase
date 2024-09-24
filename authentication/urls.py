@@ -15,6 +15,7 @@ urlpatterns = [
     path("user/token/refresh/", TokenRefreshView.as_view(), name="refresh"),
     path("user/user-info", getUserInfo.as_view(), name="user-info"),
     path("api-auth/", include("rest_framework.urls")),
+    path("user/google-login/", GoogleLoginView.as_view(), name="google_login"),
 ]
  
 # Serve media files if DEBUG is True (development mode)

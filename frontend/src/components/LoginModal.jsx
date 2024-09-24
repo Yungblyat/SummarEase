@@ -3,6 +3,7 @@ import { Dialog } from '@headlessui/react'
 import { X } from 'lucide-react'
 import api from '../api'
 import { ACCESS_TOKEN, REFRESH_TOKEN } from '../constants'
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
@@ -13,6 +14,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
   const [isSignUp, setIsSignUp] = useState(false)
   const [formErrors, setFormErrors] = useState({})
 
+  
   const validateForm = (formData) => {
     const errors = {}
     if (isSignUp) {
