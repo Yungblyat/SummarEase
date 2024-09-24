@@ -5,6 +5,7 @@ from SummarEaseApp.models import AudioFile, Transcript, SpeakerDiarization
 from .models import ParticipantEngagement
 from collections import defaultdict
 from textblob import TextBlob
+from transformers import pipeline
 
 def categorize_polarity(polarity):
     if polarity > 0.1:
@@ -138,20 +139,24 @@ def calculate_interruption_frequency(diarization_content):
 #     return sentiment_data
 
 def calculate_sentiment(diarization_content):
+    # Load the sentiment-analysis pipeline from transformers
+    sentiment_pipeline = pipeline("sentiment-analysis")
+    
     total_sentiments = {"positive": 0, "negative": 0, "neutral": 0}
     total_count = 0
 
     for segment in diarization_content["segments"]:
         text = segment["text"]
-        blob = TextBlob(text)
-        polarity = blob.sentiment.polarity
+        result = sentiment_pipeline(text)[0]  # Get the first result from the pipeline
+        
         total_count += 1
         
-        if polarity > 0:
+        # Check the label returned by the sentiment analysis model
+        if result['label'] == 'POSITIVE':
             total_sentiments["positive"] += 1
-        elif polarity < 0:
+        elif result['label'] == 'NEGATIVE':
             total_sentiments["negative"] += 1
-        else:
+        else:  # Assuming NEUTRAL is not always available; you may need to adjust based on your model
             total_sentiments["neutral"] += 1
 
     average_positive = (total_sentiments["positive"] / total_count) * 100 if total_count > 0 else 0
