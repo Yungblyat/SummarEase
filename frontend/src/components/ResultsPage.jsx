@@ -6,29 +6,55 @@ import EmailModal from './EmailModal';
 
 
 // Define styles for PDF
+// Create styles
 const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
-    backgroundColor: '#FFFFFF',
-    padding: 20,
-  },
-  section: {
-    margin: 5,
-    padding: 5,
+    backgroundColor: '#f3e5f5', // This color should stay as the background
+    padding: 30,
   },
   title: {
-    fontSize: 16,
-    marginBottom: 5,
-    fontWeight: 'bold',
+    fontSize: 24,
+    marginBottom: 20,
+    color: '#6a1b9a',
+  },
+  section: {
+    marginBottom: 20,
+    padding: 10,
+    backgroundColor: '#ffffff', // Set white only for the section, not the entire screen
+    borderRadius: 8,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    marginBottom: 10,
+    color: '#6a1b9a',
   },
   content: {
     fontSize: 12,
-    lineHeight: 1.5,
+    marginBottom: 5,
   },
-  todoItem: {
-    marginLeft: 10,
+  sentimentBar: {
+    height: 10, // Defines the height of the bar
+    borderRadius: 5,
+    marginTop: 5,
+    marginBottom: 10,
+  },
+  sentimentLabel: {
+    fontSize: 12,
+    marginBottom: 2,
+  },
+  positiveBar: {
+    backgroundColor: '#4caf50', // Green for Positive
+  },
+  neutralBar: {
+    backgroundColor: '#ff9800', // Orange for Neutral
+  },
+  negativeBar: {
+    backgroundColor: '#f44336', // Red for Negative
   },
 });
+
+
 
 // Helper function to clean up data for PDF
 const cleanDataForPDF = (data) => {
@@ -45,60 +71,7 @@ const cleanDataForPDF = (data) => {
   }
   return String(data);
 };
-
-// PDF Document component
-const MyDocument = ({ sections }) => (
-  <Document>
-    <Page size="A4" style={styles.page}>
-      {sections.map((section) => (
-        <View key={section.key} style={styles.section}>
-          <Text style={styles.title}>{section.title}</Text>
-          {section.key === 'diarization' ? (
-            Object.entries(section.content).map(([speaker, text], index) => (
-              <Text key={index} style={styles.content}>
-                
-                {cleanDataForPDF(text)}
-              </Text>
-            ))
-          ) : section.key === 'todos' ? (
-            section.content.map((todo, index) => (
-              <Text key={index} style={styles.content}>
-                {`${index + 1}. ${cleanDataForPDF(todo)}`}
-              </Text>
-            ))
-          ) : section.key === 'sentiment' ? (
-            Object.entries(section.content).map(([key, value], index) => (
-              <Text key={index} style={styles.content}>
-                {`${key}: ${value.toFixed(2)}%`}
-              </Text>
-            ))
-          ) : section.key === 'speechRate' ? (
-            Object.entries(section.content).map(([speaker, data], index) => (
-              <Text key={index} style={styles.content}>
-                <Text style={styles.speakerText}>{speaker}:</Text>
-                {`${data.speech_rate.toFixed(2)} words per minute`}
-              </Text>
-            ))
-          ) : section.key === 'interruptions' ? (
-            Object.entries(section.content).map(([speaker, data], index) => (
-              <Text key={index} style={styles.content}>
-                <Text style={styles.speakerText}>{speaker} interrupted:</Text>
-                {Object.entries(data).map(([interruptedSpeaker, count], i, arr) => (
-                  `${interruptedSpeaker} ${count} time(s)${i < arr.length - 1 ? ', ' : ''}`
-                )).join('')}
-              </Text>
-            ))
-          ) : (
-            <Text style={styles.content}>
-              {cleanDataForPDF(section.content)}
-            </Text>
-          )}
-        </View>
-      ))}
-    </Page>
-  </Document>
-);
-
+// Sentiment Bar component
 const SentimentBar = ({ label, value, color }) => (
   <div className="mb-2">
     <div className="flex justify-between mb-1">
@@ -110,6 +83,85 @@ const SentimentBar = ({ label, value, color }) => (
     </div>
   </div>
 );
+
+// PDF Document component
+const MyDocument = ({ sections }) => (
+  <Document>
+  <Page size="A4" style={styles.page}>
+    {/* Title */}
+    <Text style={styles.title}>SummarEase</Text>
+
+    {/* Mapping through sections */}
+    {sections.map((section) => (
+      <View key={section.key} style={styles.section}>
+        <Text style={styles.sectionTitle}>{section.title}</Text>
+
+        {/* Handling the 'summary' section */}
+        {section.key === 'summary' && (
+          <Text style={styles.content}>{cleanDataForPDF(section.content)}</Text>
+        )}
+
+        {/* Handling the 'todos' section */}
+        {section.key === 'todos' && (
+          section.content.map((todo, index) => (
+            <Text key={index} style={styles.content}>
+              {`${index + 1}. ${cleanDataForPDF(todo)}`}
+            </Text>
+          ))
+        )}
+
+        {/* Handling the 'sentiment' section */}
+        {section.key === 'sentiment' && (
+          <>
+            <SentimentBar label="Positive" value={section.content.positive} color="#4caf50" />
+            <SentimentBar label="Neutral" value={section.content.neutral} color="#ff9800" />
+            <SentimentBar label="Negative" value={section.content.negative} color="#f44336" />
+            {/* Showing sentiment as percentages */}
+            {Object.entries(section.content).map(([key, value], index) => (
+              <Text key={index} style={styles.content}>
+                {`${key.charAt(0).toUpperCase() + key.slice(1)}: ${value.toFixed(2)}%`}
+              </Text>
+            ))}
+          </>
+        )}
+
+        {/* Handling the 'diarization' section */}
+        {section.key === 'diarization' && (
+          Object.entries(section.content).map(([speaker, text], index) => (
+            <Text key={index} style={styles.content}>
+              {cleanDataForPDF(text)}
+            </Text>
+          ))
+        )}
+
+        {/* Handling the 'speechRate' section */}
+        {section.key === 'speechRate' && (
+          Object.entries(section.content).map(([speaker, data], index) => (
+            <Text key={index} style={styles.content}>
+              <Text style={styles.speakerText}>{speaker}:</Text> {`${data.speech_rate.toFixed(2)} words per minute`}
+            </Text>
+          ))
+        )}
+
+        {/* Handling the 'interruptions' section */}
+        {section.key === 'interruptions' && (
+          Object.entries(section.content).map(([speaker, data], index) => (
+            <Text key={index} style={styles.content}>
+              <Text style={styles.speakerText}>{speaker} interrupted:</Text>
+              {Object.entries(data).map(([interruptedSpeaker, count], i, arr) => (
+                `${interruptedSpeaker} ${count} time(s)${i < arr.length - 1 ? ', ' : ''}`
+              )).join('')}
+            </Text>
+          ))
+        )}
+      </View>
+    ))}
+  </Page>
+</Document>
+
+);
+
+
 
 const ResultsPage = () => {
   const location = useLocation();

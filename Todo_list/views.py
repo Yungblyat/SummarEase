@@ -9,7 +9,7 @@ from rake_nltk import Rake
 
 nltk.download('punkt')
 
-def bert_summarize(text, num_sentences=3):
+def bert_summarize(text, num_sentences=8):
     # Load pre-trained BERT model and tokenizer
     model_name = "bert-base-uncased"
     tokenizer = BertTokenizer.from_pretrained(model_name)

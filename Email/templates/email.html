@@ -1,4 +1,161 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SummarEase - Soft Lavender Theme</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3e8fd;
+            color: #4a1d96;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        h1, h2 {
+            color: #5b21b6;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border: 1px solid #d8b4fe;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 10px;
+        }
+
+        .button {
+            background-color: #7c3aed;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .button:hover {
+            background-color: #6d28d9;
+        }
+        .sentiment-item {
+            margin-bottom: 15px;
+        }
+        .sentiment-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .bar {
+            height: 10px;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        .bar-fill {
+            height: 100%;
+            border-radius: 5px;
+        }
+        .positive .bar-fill {
+            background-color: #2ecc71;
+            
+        }
+        .neutral .bar-fill {
+            background-color: #f39c12;
+        
+        }
+        .negative .bar-fill {
+            background-color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>SummarEase</h1>
+        </header>
+
+        <div class="card">
+            {% if summary %}
+            <h2>Transcript Summary</h2>
+            <p>{{ summary }}</p>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            {% if todos %}
+            <h2>To-Do List</h2>
+            <ul>
+                {% for todo in todos %}
+                <li>{{ todo }}</li>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h2>Sentiment Analysis</h2>
+            <div class="sentiment-item positive">
+                <div class="sentiment-label">
+                    <span>Positive</span>
+                    <span>{{ sentiment.average_positive }}%</span>
+                </div>
+                <div class="bar">
+                    <div class="bar-fill positive" style="width: {{ sentiment.average_positive }}%;"></div>
+                </div>
+            </div>
+        
+            <!-- Neutral Sentiment -->
+            <div class="sentiment-item neutral">
+                <div class="sentiment-label">
+                    <span>Neutral</span>
+                    <span>{{ sentiment.average_neutral }}%</span>
+                </div>
+                <div class="bar">
+                    <div class="bar-fill neutral" style="width: {{ sentiment.average_neutral }}%;"></div>
+                </div>
+            </div>
+        
+            <!-- Negative Sentiment -->
+            <div class="sentiment-item negative">
+                <div class="sentiment-label">
+                    <span>Negative</span>
+                    <span>{{ sentiment.average_negative }}%</span>
+                </div>
+                <div class="bar">
+                    <div class="bar-fill negative" style="width: {{ sentiment.average_negative }}%;"></div>
+                </div>
+            </div>
+    </div>
+</body>
+</html>
+
+{% comment %} <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -85,4 +242,4 @@
 </body>
 </html>
 
-
+ {% endcomment %}
