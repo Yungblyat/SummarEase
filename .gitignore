@@ -2,5 +2,13 @@
 db.sqlite3
 authentication/__pycache__
 SummarEaseFyp/__pycache__
+authentication/migrations/__pycache__
+Email/__pycache__
+Email/migrations/__pycache__
+ParticipantEngagement_SentimentAnalysis/__pycache__
+ParticipantEngagement_SentimentAnalysis/migrations/__pycache__
+SummarEaseApp/__pycache__
+SummarEaseApp/migrations/__pycache__
 
 media/
+frontend/.env
