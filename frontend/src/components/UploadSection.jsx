@@ -50,6 +50,7 @@ export default function UploadSection({ isLoggedIn, onLoginRequired }) {
           },
           timeout: 3000000,
         });
+        console.log(JSON.stringify(response.data));
         localStorage.removeItem(FILE_ID);
         localStorage.setItem(FILE_ID, response.data.audio_file);
         // Navigate to results page with the response data

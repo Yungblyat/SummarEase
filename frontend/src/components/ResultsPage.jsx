@@ -225,64 +225,82 @@ const ResultsPage = () => {
     return <p className="text-white">No diarization data available.</p>;
   };
 
-  const renderSentimentResults = (sentiment) => {
-    if (typeof sentiment === 'object' && sentiment !== null) {
-      return (
-        <div className="space-y-4">
-          <SentimentBar label="Positive" value={sentiment.average_positive} color="bg-green-500" />
-          <SentimentBar label="Neutral" value={sentiment.average_neutral} color="bg-yellow-500" />
-          <SentimentBar label="Negative" value={sentiment.average_negative} color="bg-red-500" />
-        </div>
-      );
-    }
-    return <p className="text-white">No sentiment data available.</p>;
-  };
+  const renderEngagementMetrics = (result) => {
+    const { interruptions, speech_rate, sentiment } = result
 
-  const renderSpeechRateResults = (speechRate) => {
-    if (typeof speechRate === 'object' && speechRate !== null) {
-      return Object.entries(speechRate).map(([speaker, data]) => (
-        <div key={speaker} className="mb-2 bg-purple-600 bg-opacity-50 p-2 rounded flex items-center">
-          <span className="font-bold text-purple-200 mr-2">{speaker}:</span>
-          <span className="text-white">
-            {data.speech_rate.toFixed(2)} words per minute
-          </span>
-        </div>
-      ));
-    }
-    return <p className="text-white">No speech rate data available.</p>;
-  };
-  const renderInterruptionsResults = (interruptions) => {
-    if (typeof interruptions === 'object' && interruptions !== null) {
-      return Object.entries(interruptions).map(([speaker, data]) => (
-        <div key={speaker} className="mb-2 bg-purple-600 bg-opacity-50 p-2 rounded">
-          <span className="font-bold text-purple-200 mr-2">{speaker} interrupted </span>
-          <span className="text-white">
-            {Object.entries(data).map(([interruptedSpeaker, count], index, array) => (
-              <React.Fragment key={interruptedSpeaker}>
-                {interruptedSpeaker} { count } time(s)
-                {index < array.length - 1 ? ', ' : ''}
-              </React.Fragment>
-            ))}
-          </span>
-        </div>
-      ));
-    }
-    return <p className="text-white">No interruptions data available.</p>;
-  };
-  const sections = result ? [
-    { key: 'summary', title: 'Summary', content: result.summary },
-    { key: 'transcript', title: 'Transcript', content: result.transcript_result },
-    { key: 'diarization', title: 'Speech Diarization', content: result.diarization_results, render: renderDiarizationResults },
-    { key: 'todos', title: 'Todos', content: result.todos },
-    { key: 'sentiment', title: 'Sentiment', content: result.sentiment, render: renderSentimentResults },
-    { key: 'speechRate', title: 'Speech Rate', content: result.speech_rate, render: renderSpeechRateResults },
-    { key: 'interruptions', title: 'Interruptions', content: result.interruptions, render: renderInterruptionsResults },
-  ].filter(section => {
-    if (Array.isArray(section.content)) {
-      return section.content.length > 0;
-    }
-    return section.content != null && section.content !== '';
-  }) : [];
+    return (
+      <div className="engagement-metrics">
+        {interruptions && (
+          <div className="interruptions mb-4">
+            <h3 className="text-lg font-bold text-purple-400 mb-2">Interruptions</h3>
+            {typeof interruptions === 'object' && interruptions !== null ? (
+              Object.entries(interruptions).map(([speaker, data]) => (
+                <div key={speaker} className="mb-2 bg-purple-600 bg-opacity-50 p-2 rounded">
+                  <span className="font-bold text-purple-200 mr-2">{speaker} interrupted:</span>
+                  <span className="text-white">
+                    {Object.entries(data).map(([interruptedSpeaker, count], index, array) => (
+                      <React.Fragment key={interruptedSpeaker}>
+                        {`${interruptedSpeaker} ${count} time(s)`}
+                        {index < array.length - 1 ? ', ' : ''}
+                      </React.Fragment>
+                    ))}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <p className="text-white">No interruptions data available.</p>
+            )}
+          </div>
+        )}
+
+        {speech_rate && (
+          <div className="speech-rate mb-4">
+            <h3 className="text-lg font-bold text-purple-400 mb-2">Speech Rate</h3>
+            {typeof speech_rate === 'object' && speech_rate !== null ? (
+              Object.entries(speech_rate).map(([speaker, rate]) => (
+                <p key={speaker} className="text-white">
+                  {speaker}: {rate.speech_rate.toFixed(2)} words per minute
+                </p>
+              ))
+            ) : (
+              <p className="text-white">{speech_rate} words per minute</p>
+            )}
+          </div>
+        )}
+
+        {sentiment && (
+          <div className="sentiment mb-4">
+            <h3 className="text-lg font-bold text-purple-400 mb-2">Sentiment Analysis</h3>
+            {typeof sentiment === 'object' && sentiment !== null ? (
+              Object.entries(sentiment).map(([key, value]) => (
+                <p key={key} className="text-white">
+                  {key.charAt(0).toUpperCase() + key.slice(1)}: {value.toFixed(2)}%
+                </p>
+              ))
+            ) : (
+              <p className="text-white">Overall sentiment: {sentiment}</p>
+            )}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  const sections = result
+    ? [
+        { key: 'summary', title: 'Summary', content: result.summary },
+        { key: 'transcript', title: 'Transcript', content: result.transcript_result },
+        { key: 'diarization', title: 'Speech Diarization', content: result.diarization_results, render: renderDiarizationResults },
+        { key: 'todos', title: 'Todos', content: result.todos },
+        { key: 'engagementMetrics', title: 'Engagement Metrics', content: result, render: renderEngagementMetrics },
+      ].filter((section) => {
+        if (Array.isArray(section.content)) {
+          return section.content.length > 0
+        }
+        return section.content != null && section.content !== ''
+      })
+    : []
+
 
   const copyToClipboard = (content) => {
     let text;

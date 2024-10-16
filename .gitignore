@@ -12,3 +12,4 @@ SummarEaseApp/migrations/__pycache__
 
 media/
 frontend/.env
+db.sqlite3
