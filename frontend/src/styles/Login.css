@@ -1,0 +1,82 @@
+.login-popup {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.login-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.login {
+    width: 100%;
+    max-width: 24rem;
+    border-radius: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.2); /* Transparent white */
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); /* Softer shadow */
+    backdrop-filter: blur(10px); /* Frosted glass effect */
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Optional subtle border */
+}
+
+.close
+{
+    color: aliceblue;
+    
+}
+
+.close :hover
+{
+    opacity: 0.5;
+}
+
+.cross
+{
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.forgot {
+    font-size: 0.875rem; /* Equivalent to text-sm */
+    color: #b3c2d7; /* Equivalent to text-gray-600 */
+  }
+  
+.forgot:hover {
+    color: #f9f9f9; /* Equivalent to hover:text-purple-600 */
+  }
+
+  .submit {
+    width: 100%; /* Equivalent to w-full */
+    border-radius: 9999px; /* Equivalent to rounded-full */
+    background-color: #2C1559; /* Equivalent to bg-purple-600 */
+    padding-top: 0.5rem; /* Equivalent to py-2 */
+    padding-bottom: 0.5rem; /* Equivalent to py-2 */
+    color: white; /* Equivalent to text-white */
+    outline: none; /* Equivalent to focus:outline-none */
+  }
+  
+  .submit:hover {
+    background-color: #381C92; /* Equivalent to hover:bg-purple-700 */
+  }
+  
+  .submit:focus {
+    outline: none; /* To ensure focus outline is removed */
+  }
+
+  .already {
+    color: #b3c2d7; /* Equivalent to text-gray-200 */
+    margin-right: 4px;
+  }
+  
+  

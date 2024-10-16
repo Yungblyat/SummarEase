@@ -1,0 +1,127 @@
+.abt
+{
+    margin-top: 30px;
+    
+}
+
+.abt-head
+  {
+    padding: 50px 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .abt-head h2
+  {
+    font-size: 45px;
+    font-weight: bold;
+    
+  }
+
+  .abt-head p
+  {
+    font-size: 17px;
+    margin-top: 10px;
+    width: 530px;
+    color: #87868e;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .abt-tiles
+  {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+   
+    background: #2C155A;
+
+  }
+
+
+  .abt-card 
+  {
+        
+
+    padding: 9px;
+    width: 400px;
+    height: 400px;
+    margin-top: 0px;
+    border-radius: 35px;
+    cursor: pointer;
+    background-color: #2C1559;
+    overflow: hidden;
+    
+  }
+
+
+  
+
+  .abt-card-inner
+  {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .abt-card img
+  {
+    margin-top: 30px;
+    width: 100px;
+  }
+
+  .abt-card h3
+  {
+    color: #fff;
+    font-size: 25px;
+    margin-top: 20px;
+    
+  }
+
+  .abt-card p
+  {
+    color: #e9d5ff;
+    margin-top: 20px;
+    font-size: 15px;
+    font-weight: 100;
+    width: 80%;
+    text-align: center;
+  }
+
+  .botm-line
+  {
+    position: relative;
+    top: -50px;
+    border: none;
+    height: 2px;
+    background-color: #3d1c80;
+  }
+
+ 
+
+
+@media (max-width:750px)
+{
+  
+
+  .abt-head h2
+  {
+    font-size: 35px;
+    text-align: center;
+  }
+
+  .abt-head p
+  {
+    font-size: 17px;
+    margin-top: 10px;
+    width: 300px;
+    text-align: center;
+  }
+}

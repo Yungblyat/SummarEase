@@ -1,0 +1,105 @@
+.upload
+{
+    background-image: url("../assets/upload_bg_img.png");
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    padding: 2rem; /* Padding equivalent to p-8 */ 
+    min-height: 51rem;
+}
+
+.main-section
+{
+    max-width: 64rem;  /* Equivalent to max-w-4xl (4 * 16rem = 64rem) */
+    margin-left: auto; /* Equivalent to mx-auto (horizontal margin auto for centering) */
+    margin-right: auto;
+    display: flex;     /* Equivalent to flex */
+    align-items: flex-start; /* Equivalent to items-start (align items to the start of cross-axis) */
+    justify-content: space-between; /* Equivalent to justify-between (distribute space between items) */
+   
+}
+
+.left-section 
+{   
+    width: 43%; /* w-1/2 */
+    background-color: rgba(149, 126, 202, 0.6); /* semi-transparent purple */
+    border-radius: 0.5rem; /* rounded-lg */
+    padding: 1.5rem; /* p-6 */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+    backdrop-filter: blur(10px); /* glass blur effect */
+    border: 1px solid rgba(255, 255, 255, 0.3); /* light border to enhance glass feel */
+    
+    border-radius: 30px;
+    position: relative;
+    z-index: 1;
+    margin-top: 13%;
+    
+}
+
+
+.left-section h2 
+{
+    font-weight: 700;
+    font-size: 1.5rem;
+    line-height: 2rem;
+    color: #ffffff;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.left-section p 
+{
+    color: hsl(0, 0%, 99%);
+    margin-bottom: 1rem;
+    font-weight: 400;
+    text-align: center;
+}
+      
+.file-upload 
+{
+    border-width: 2px;
+    border-style: dashed;
+    border-color: #A78BFA;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    cursor: pointer;
+}
+
+
+
+.file-upload p 
+{
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+}  
+  
+.file-upload span
+{
+    color: #cfcad5;
+}
+
+.right-section 
+{
+  
+   margin-left: 130px;
+    margin-top: 25%;
+}
+
+
+.right-section h2
+{
+    font-size: 40px;
+    text-align: center;
+    font-weight: 900;
+    color: #ffffff;
+    margin-bottom: 1rem;
+}
+
+.right-section p
+{
+    color: #E9D5FF;
+    text-align: center;
+    max-width: 320px;
+    margin-left: 88px;
+}
