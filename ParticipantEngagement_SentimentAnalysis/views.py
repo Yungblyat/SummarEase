@@ -5,6 +5,7 @@ from SummarEaseApp.models import AudioFile, Transcript, SpeakerDiarization
 from .models import ParticipantEngagement
 from collections import defaultdict
 from textblob import TextBlob
+from transformers import pipeline
 
 def categorize_polarity(polarity):
     if polarity > 0.1:
@@ -27,7 +28,7 @@ def calculate_engagement_metrics(diarization_content):
     current_start = None
 
     for segment in diarization_content["segments"]:
-        speaker = segment["speaker"]
+        speaker = segment.get("speaker", "Unknown")
         start = segment["start"]
         end = segment["end"]
 
@@ -64,15 +65,15 @@ def calculate_speech_rate(diarization_content):
         end = segment.get("end", 0)
 
         # Log information for debugging
-        print(f"Processing segment - Speaker: {speaker}, Text: '{text}', Start: {start}, End: {end}")
+        # print(f"Processing segment - Speaker: {speaker}, Text: '{text}', Start: {start}, End: {end}")
 
         if speaker:
             word_counts[speaker] += len(text.split())
             speaker_times[speaker] += end - start
 
     # Log the counts and times for debugging
-    print("Word Counts:", dict(word_counts))
-    print("Speaker Times:", dict(speaker_times))
+    # print("Word Counts:", dict(word_counts))
+    # print("Speaker Times:", dict(speaker_times))
 
     speech_rate = {}
     for speaker, word_count in word_counts.items():
@@ -85,43 +86,94 @@ def calculate_speech_rate(diarization_content):
 
     return speech_rate
 
+from collections import defaultdict
+
 def calculate_interruption_frequency(diarization_content):
     interruptions = defaultdict(lambda: defaultdict(int))
     previous_speaker = None
 
     for segment in diarization_content["segments"]:
-        speaker = segment["speaker"]
+        speaker = segment.get("speaker", "Unknown")
+
+        # Skip "Unknown" speakers if you want to ignore them in interruption calculation
+        if speaker == "Unknown":
+            continue
 
         if previous_speaker and previous_speaker != speaker:
             interruptions[previous_speaker][speaker] += 1
 
         previous_speaker = speaker
-    return interruptions
+
+    # Optionally handle interruptions involving "Unknown" speakers
+    if "Unknown" in interruptions:
+        unknown_interruptions = interruptions["Unknown"]
+        interruptions["Unknown"] = dict(unknown_interruptions)
+
+    return {speaker: dict(interrupted_speakers) for speaker, interrupted_speakers in interruptions.items()}
+
+
+# def calculate_sentiment(diarization_content):
+#     sentiments = defaultdict(lambda: {"polarity": 0, "subjectivity": 0, "count": 0})
+
+#     for segment in diarization_content["segments"]:
+#         speaker = segment.get("speaker", "Unknown")
+#         text = segment["text"]
+#         blob = TextBlob(text)
+#         sentiments[speaker]["polarity"] += blob.sentiment.polarity
+#         sentiments[speaker]["subjectivity"] += blob.sentiment.subjectivity
+#         sentiments[speaker]["count"] += 1
+
+#     sentiment_data = {}
+#     for speaker, data in sentiments.items():
+#         count = data["count"]
+#         average_polarity = data["polarity"] / count if count > 0 else 0
+#         average_subjectivity = data["subjectivity"] / count if count > 0 else 0
+        
+#         sentiment_data[speaker] = {
+#             "average_polarity": average_polarity,
+#             "average_subjectivity": average_subjectivity,
+#             "polarity_label": categorize_polarity(average_polarity),
+#             "subjectivity_label": categorize_subjectivity(average_subjectivity)
+#         }
+
+#     return sentiment_data
+
+from transformers import pipeline
 
 def calculate_sentiment(diarization_content):
-    sentiments = defaultdict(lambda: {"polarity": 0, "subjectivity": 0, "count": 0})
+    # Load the sentiment-analysis pipeline from transformers
+    sentiment_pipeline = pipeline("sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english")
+
+    total_sentiments = {"positive": 0, "negative": 0, "neutral": 0}
+    total_count = 0
 
     for segment in diarization_content["segments"]:
-        speaker = segment.get("speaker", "Unknown")
         text = segment["text"]
-        blob = TextBlob(text)
-        sentiments[speaker]["polarity"] += blob.sentiment.polarity
-        sentiments[speaker]["subjectivity"] += blob.sentiment.subjectivity
-        sentiments[speaker]["count"] += 1
-
-    sentiment_data = {}
-    for speaker, data in sentiments.items():
-        count = data["count"]
-        average_polarity = data["polarity"] / count if count > 0 else 0
-        average_subjectivity = data["subjectivity"] / count if count > 0 else 0
+        result = sentiment_pipeline(text)[0]  # Get the first result from the pipeline
         
-        sentiment_data[speaker] = {
-            "average_polarity": average_polarity,
-            "average_subjectivity": average_subjectivity,
-            "polarity_label": categorize_polarity(average_polarity),
-            "subjectivity_label": categorize_subjectivity(average_subjectivity)
-        }
+        total_count += 1
 
-    return sentiment_data
+        # Use score (polarity) to classify into positive, neutral, and negative
+        score = result['score']
+        label = result['label']
+        
+        if label == 'POSITIVE' and score > 0.3:
+            total_sentiments["positive"] += 1
+        elif label == 'NEGATIVE' and score < -0.3:
+            total_sentiments["negative"] += 1
+        else:
+            total_sentiments["neutral"] += 1
+
+    average_positive = (total_sentiments["positive"] / total_count) * 100 if total_count > 0 else 0
+    average_negative = (total_sentiments["negative"] / total_count) * 100 if total_count > 0 else 0
+    average_neutral = (total_sentiments["neutral"] / total_count) * 100 if total_count > 0 else 0
+
+    return {
+        "average_positive": round(average_positive, 2),
+        "average_negative": round(average_negative, 2),
+        "average_neutral": round(average_neutral, 2),
+    }
+
+
 
 

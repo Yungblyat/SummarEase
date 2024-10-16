@@ -24,7 +24,7 @@ class AudioFile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
     file = models.FileField(upload_to='audio/')
     uploaded_at = models.DateTimeField(auto_now_add=True)
-   
+
 
 class Transcript(models.Model):
     audio_file = models.OneToOneField(AudioFile, on_delete=models.CASCADE, related_name='transcript')

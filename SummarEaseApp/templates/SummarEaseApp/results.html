@@ -143,32 +143,6 @@
     {% endfor %}
 </ul>
     </div>
-
-    <form method="post" action="{% url 'send_email' %}">
-        {% csrf_token %}
-        <h3>Send Results via Email</h3>
-        <label for="email">Enter Team Members' Emails (separate by commas):</label>
-        <input type="text" id="email" name="email" placeholder="team@example.com, other@example.com">
-        <input type="hidden" name="audio_file_id" value="{{ audio_file.id }}">
-        <button type="submit">Send Email</button>
-    </form>
-    
-    <!-- Form for Generating PDF -->
-    <form method="post" action="{% url 'generate_pdf' %}">
-        {% csrf_token %}
-        <h3>Generate PDF</h3>
-        <input type="hidden" name="audio_file_id" value="{{ audio_file.id }}">
-        <button type="submit">Generate PDF</button>
-    </form>
-
-    {% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-        {% endfor %}
-    </ul>
-{% endif %}
-
 </body>
 
 </html>

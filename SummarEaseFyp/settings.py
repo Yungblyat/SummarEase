@@ -13,13 +13,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
-
-
-
+from datetime import timedelta
 
 #path for media directory
-
-
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -32,15 +28,44 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(f"{BASE_DIR}\\.env")
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
 
-ALLOWED_HOSTS = []
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")  # Your email
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")  # Your email password
+DEFAULT_FROM_EMAIL = os.getenv("EMAIL_HOST_USER")
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = False
+
+ALLOWED_HOSTS = ["*"]
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'ACCESS_TOKEN_PAYLOAD_HANDLER': 'authentication.utils.custom_payload_handler',
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    "corsheaders",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -51,11 +76,14 @@ INSTALLED_APPS = [
     "authentication",
     "ParticipantEngagement_SentimentAnalysis",
     "Todo_list",
+    "rest_framework",
+    "rest_framework.authtoken",
     "Email",
-
+    'social_django',
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -99,20 +127,13 @@ WSGI_APPLICATION = "SummarEaseFyp.wsgi.application"
 #         'PORT': '3306', 
 #     }
 # }
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
-
-
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
 
 
 # Password validation
@@ -145,18 +166,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # Example: 'smtp.gmail.com' for Gmail
-EMAIL_PORT = 587  # or 465 for SSL
-EMAIL_USE_TLS = True  # Use TLS or SSL depending on your email provider
-EMAIL_USE_SSL = False
-EMAIL_HOST_USER = os.getenv("email")  # Your email
-EMAIL_HOST_PASSWORD = os.getenv("password")  # Your email password
-DEFAULT_FROM_EMAIL = os.getenv("email")
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
@@ -170,3 +179,16 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWS_CREDENTIALS = True
+
+FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50 MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800 
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")

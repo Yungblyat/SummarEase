@@ -1,3 +1,4 @@
+.env
 db.sqlite3
 authentication/__pycache__
 SummarEaseFyp/__pycache__
@@ -11,4 +12,3 @@ SummarEaseApp/migrations/__pycache__
 
 media/
 frontend/.env
-.env

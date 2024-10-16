@@ -1,9 +1,6 @@
 import os
-import time
 import gc
 import torch
-import whisperx
-from django.http import HttpResponse
 from django.conf import settings
 from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -11,27 +8,24 @@ from .forms import AudioFileForm
 from .models import Transcript, SpeakerDiarization,AudioFile
 from dotenv import load_dotenv
 from SummarEaseFyp.settings import BASE_DIR
-from ParticipantEngagement_SentimentAnalysis.views import calculate_engagement_metrics, calculate_speech_rate, calculate_interruption_frequency, calculate_sentiment
+from ParticipantEngagement_SentimentAnalysis.views import calculate_sentiment, calculate_speech_rate, calculate_engagement_metrics, calculate_interruption_frequency
 from ParticipantEngagement_SentimentAnalysis.models  import ParticipantEngagement
 from collections import defaultdict
 from Todo_list.views import bert_summarize,extract_advanced_todos
 from Todo_list.models import ToDoItem,Summary
+from .utils import transcribe, diarize
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from rest_framework.response import Response
+from django.http import JsonResponse
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from django.views.decorators.csrf import csrf_exempt
+import json
+from .serializers import AudioFileSerializer
+
 
 #Note: Move the ultity function to a seperate utilty file
-def transcribe(device: str, model, audio_file: str, batch_size=16, compute_type="int8") -> dict:
-    model = whisperx.load_model(model, device, compute_type=compute_type)
-    audio = whisperx.load_audio(audio_file)
-    result = model.transcribe(audio, batch_size=batch_size)
-    return result
-
-def diarize(auth_key: str, device: str, audio, transcription_result) -> str:
-    result = transcription_result
-    model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
-    result = whisperx.align(result["segments"], model_a, metadata, audio, device, return_char_alignments=False)
-    diarize_model = whisperx.DiarizationPipeline(use_auth_token=auth_key, device=device)
-    diarize_segments = diarize_model(audio)
-    result = whisperx.assign_word_speakers(diarize_segments, result)
-    return result
 
 def main(device: str, model: str, audio_file, transcription_file: bool = False, diarization_file: bool = False) -> dict:
     load_dotenv(f"{BASE_DIR}\\.env")
@@ -47,8 +41,13 @@ def convert_defaultdict_to_dict(d):
         d = {k: convert_defaultdict_to_dict(v) for k, v in d.items()}
     return d
 
-# @login_required
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@csrf_exempt
 def upload_audio(request):
+    options = json.loads(request.POST.get("options"))
     if request.method == 'POST':
         form = AudioFileForm(request.POST, request.FILES)
         if form.is_valid():
@@ -57,9 +56,14 @@ def upload_audio(request):
             audio_file.save()
             file_path = os.path.join(settings.MEDIA_ROOT, audio_file.file.name)
             try:
-                output = main(device="cuda", model="base", audio_file=file_path, transcription_file=True, diarization_file=request.POST.get('diarizationCheckbox'))
-                
-                transcript_content = output["transcription"]
+                output = main(
+                    device="cuda",
+                    model="base",
+                    audio_file=file_path,
+                    transcription_file=True,
+                    diarization_file=options.get("diarization")
+                )
+                transcript_content = output.get("transcription")
                 Transcript.objects.create(audio_file=audio_file, content=transcript_content)
 
                 diarization_content = None
@@ -67,72 +71,90 @@ def upload_audio(request):
                 speech_rate = None
                 interruptions = None
                 sentiment = None
-                todos=[]
-                summary=''
+                todos = []
+                summary = ''
                 
-                if request.POST.get('Todo_ListCheckbox'):
-                     transcript_text = ''.join([segment.get('text', '') for segment in transcript_content.get("segments", [])])
-                     todos = extract_advanced_todos(transcript_text)
+                if options["todo"]:
+                    transcript_text = ''.join([segment.get('text', '') for segment in transcript_content.get("segments", [])])
+                    todos = extract_advanced_todos(transcript_text)
 
-                if request.POST.get('SummarizeCheckbox'):
+                if options["summary"]:
                     transcript_text = ''.join([segment.get('text', '') for segment in transcript_content.get("segments", [])])
                     summary = bert_summarize(transcript_text)
 
                 if "diarization" in output:
-                    SpeakerDiarization.objects.create(audio_file=audio_file, content=output["diarization"])
-                    diarization_content = output["diarization"]
+                    SpeakerDiarization.objects.create(audio_file=audio_file, content=output.get("diarization"))
+                    diarization_content = output.get("diarization")
+                    
 
-                if request.POST.get('engagementCheckbox') and diarization_content:
-                    metrics = calculate_engagement_metrics(diarization_content)
-                    speech_rate = calculate_speech_rate(diarization_content)
-                    interruptions = calculate_interruption_frequency(diarization_content)
-                    sentiment = calculate_sentiment(diarization_content)
+                if options["engagement"] and diarization_content:
+                    try:
+                         interruptions = calculate_interruption_frequency(diarization_content)
+                         print("Interruptions calculated successfully:", interruptions)
+                    except Exception as e:
+                     print("Error in calculating interruptions:", e)
 
-                    interruptions = convert_defaultdict_to_dict(interruptions)
+                    try:
+                        metrics = calculate_engagement_metrics(diarization_content)
+                        print("Metrics calculated successfully:")
+                    except Exception as e:
+                        print("Error in calculating metrics:", e)
+
+                    try:
+                        sentiment = calculate_sentiment(diarization_content)
+                        print("Sentiment calculated successfully:")
+                    except Exception as e:
+                        print("Error in calculating sentiment:", e)
+
+                    try:
+                        speech_rate = calculate_speech_rate(diarization_content)
+                        print("Speechrate calculated successfully:")
+                    except Exception as e:
+                        print("Error in calculating sentiment:", e)
 
                     ParticipantEngagement.objects.update_or_create(
                         audio_file=audio_file,
                         defaults={
+                            'sentiment': sentiment,
                             'metrics': metrics,
                             'speech_rate': speech_rate,
                             'interruptions': interruptions,
-                            'sentiment': sentiment
                         }
                     )
-                
                 for todo_content in todos:
                     ToDoItem.objects.create(audio_file=audio_file, content=todo_content)
 
                 Summary.objects.update_or_create(
-                audio_file=audio_file,
-                defaults={'content': summary}
-            )
+                    audio_file=audio_file,
+                    defaults={'content': summary}
+                )
 
                 diarization_results = process_diarization_result(diarization_content)
-
-                return render(request, 'SummarEaseApp/results.html', {
+                return JsonResponse({
                     'diarization_results': diarization_results,
                     'transcript_result': ''.join([f"{segment.get('text').lstrip()}" for segment in transcript_content.get("segments", [])]),
-                    'metrics': metrics if request.POST.get('engagementCheckbox') else None,
-                    'speech_rate': speech_rate if request.POST.get('engagementCheckbox') else None,
-                    'interruptions': interruptions if request.POST.get('engagementCheckbox') else None,
-                    'sentiment': sentiment if request.POST.get('engagementCheckbox') else None,
-                    'audio_file': audio_file,
-                    'todos': todos if request.POST.get('Todo_ListCheckbox') else None,
-                    'summary': summary if request.POST.get('SummarizeCheckbox') else None
-                })
+                    'sentiment': sentiment if options["engagement"] else None,
+                    'audio_file': audio_file.id,
+                    'todos': todos if options["todo"] else None,
+                    'summary': summary if options["summary"] else None,
+                    'interruptions': interruptions if options["engagement"] else None,
+                    'speech_rate': speech_rate if options["engagement"] else None,
+                    'metrics':metrics if options["engagement"] else None,
+                }, status=200)
                 
             except RuntimeError:
-                return render(request, 'SummarEaseApp/error.html', {'error': "Ran out of Memory (try switching device to cpu or change the model)"})
+                return JsonResponse({'error': "Ran out of Memory (try switching device to CPU or change the model)"}, status=500)
             except FileNotFoundError:
-                return render(request, 'SummarEaseApp/error.html', {'error': "File not found (If the file path is correct, make sure you have ffmpeg installed)"})
+                return JsonResponse({'error': "File not found (If the file path is correct, make sure you have ffmpeg installed)"}, status=404)
             finally:
                 gc.collect()
                 torch.cuda.empty_cache()
-    else:
-        form = AudioFileForm()
+        else:
+            return JsonResponse({'error': "Invalid form submission"}, status=400)
    
-    return render(request, 'SummarEaseApp/upload.html', {'form': form})
+    return JsonResponse({'error': "Invalid request method"}, status=405)
+
+
 
 
 
@@ -147,61 +169,73 @@ def process_diarization_result(diarization_result):
         results.append(f"{speaker}: {text}")
     return results
 
-@login_required
-def transcript_list(request):
-    audio_files = AudioFile.objects.filter(user=request.user)
-    return render(request, 'SummarEaseApp/transcript_list.html', {'audio_files': audio_files})
-
-@login_required
-def transcript_list_and_view(request, audio_file_id=None):
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@csrf_exempt
+def history(request):
+    # Filter audio files by the authenticated user
     audio_files = AudioFile.objects.filter(user=request.user)
     
-    transcript_result = None
-    diarization_results = None
-    metrics =None
-    speech_rate=None
-    interruptions=None
-    sentiment= None
-    selected_audio_file = None
-    todos=[]
-    summary = []
-    
-    if audio_file_id:
-        selected_audio_file = get_object_or_404(AudioFile, id=audio_file_id, user=request.user)
-        transcript = getattr(selected_audio_file, 'transcript', None)
-        diarization = getattr(selected_audio_file, 'speaker_diarization', None)  # Use getattr to handle absence
+    # Serialize the audio files
+    serializer = AudioFileSerializer(audio_files, many=True)
+    # Return the serialized data
+    return Response({'audio_files': serializer.data})
 
-        transcript_result = ''.join([f"{segment.get('text').lstrip()}" for segment in transcript.content["segments"]]) if transcript else None
-        diarization_results = [f"{segment.get('speaker')}: {segment.get('text').lstrip()}" for segment in diarization.content["segments"]] if diarization else None
-        
-        # Fetch engagement metrics
-        Summarize=Summary.objects.filter(audio_file=selected_audio_file).first()
-        if Summarize:
-            Summarize=Summarize.content
 
-        engagement = ParticipantEngagement.objects.filter(audio_file=selected_audio_file).first()
-        if engagement:
-                metrics =engagement.metrics
-                speech_rate= engagement.speech_rate
-                interruptions= engagement.interruptions
-                sentiment= engagement.sentiment
-    
-        todos_queryset = ToDoItem.objects.filter(audio_file=selected_audio_file)
-        if todos_queryset:
-            todos = [todo.content for todo in todos_queryset]
-    context = {
-        'audio_files': audio_files,
-        'audio_file': selected_audio_file,
-        'transcript_result': transcript_result,
-        'diarization_results': diarization_results,
-        'interruptions': interruptions,
-        'sentiment': sentiment,
-        'speech_rate': speech_rate,
-        'metrics':metrics,
-        'summary':Summarize,
-        'todos':todos
-        
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@csrf_exempt
+def show_result_for_file(request):
+    file_id = request.data.get('audio_file_id')
+    audio_file = get_object_or_404(AudioFile, id=file_id, user=request.user)
+    transcription = getattr(audio_file, 'transcript', None)
+    diarization = getattr(audio_file, 'speaker_diarization', None)
+    if transcription:
+        transcript_result = ''.join([f"{segment.get('text').lstrip()}" for segment in transcription.content["segments"]])
+
+    if diarization:
+        diarization_results = [f"{segment.get('speaker')}: {segment.get('text').lstrip()}" for segment in diarization.content["segments"]]
+
+        # Fetch summary if available
+    summary_instance = Summary.objects.filter(audio_file=audio_file).first()
+    if summary_instance:
+        summary = summary_instance.content
+
+        # Fetch engagement metrics if available
+    engagement = ParticipantEngagement.objects.filter(audio_file=audio_file).first()
+    if engagement:
+        # metrics = engagement.metrics
+        speech_rate = engagement.speech_rate
+        interruptions = engagement.interruptions
+        sentiment = engagement.sentiment
+
+        # Fetch to-do items if available
+    todos_queryset = ToDoItem.objects.filter(audio_file=audio_file)
+    todos = [todo.content for todo in todos_queryset if todos_queryset is not None]
+
+    # Prepare data for the response
+    response_data = {
+        'transcript_result': transcript_result if transcription else None,
+        'diarization_results': diarization_results if diarization else None,
+        # 'metrics': metrics,
+        'speech_rate': speech_rate if engagement else None,
+        'interruptions': interruptions if engagement else None,
+        'sentiment': sentiment if engagement else None,
+        'summary': summary if summary else None,
+        'todos': todos if todos else None,
+        'audio_file': file_id,
     }
+    return Response(response_data, status=status.HTTP_200_OK)
 
-    return render(request, 'SummarEaseApp/results.html', context)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@csrf_exempt
+def delete_audio_file(request):
+    audio_file_id = request.data.get('audio_file_id')
+    if audio_file_id:
+        audio_file = get_object_or_404(AudioFile, id=audio_file_id, user=request.user)
+        if audio_file:
+            audio_file.delete()
+    return Response("File and related data has been terminated.", status=status.HTTP_200_OK)
+
 
