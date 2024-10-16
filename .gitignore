@@ -11,3 +11,4 @@ SummarEaseApp/migrations/__pycache__
 
 media/
 frontend/.env
+.env

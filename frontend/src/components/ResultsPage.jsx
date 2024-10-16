@@ -225,155 +225,57 @@ const ResultsPage = () => {
     return <p className="text-white">No diarization data available.</p>;
   };
 
-  // const renderSentimentResults = (sentiment) => {
-  //   if (typeof sentiment === 'object' && sentiment !== null) {
-  //     return (
-  //       <div className="space-y-4">
-  //         <SentimentBar label="Positive" value={sentiment.average_positive} color="bg-green-500" />
-  //         <SentimentBar label="Neutral" value={sentiment.average_neutral} color="bg-yellow-500" />
-  //         <SentimentBar label="Negative" value={sentiment.average_negative} color="bg-red-500" />
-  //       </div>
-  //     );
-  //   }
-  //   return <p className="text-white">No sentiment data available.</p>;
-  // };
-
-  // const renderSpeechRateResults = (speechRate) => {
-  //   if (typeof speechRate === 'object' && speechRate !== null) {
-  //     return Object.entries(speechRate).map(([speaker, data]) => (
-  //       <div key={speaker} className="mb-2 bg-purple-600 bg-opacity-50 p-2 rounded flex items-center">
-  //         <span className="font-bold text-purple-200 mr-2">{speaker}:</span>
-  //         <span className="text-white">
-  //           {data.speech_rate.toFixed(2)} words per minute
-  //         </span>
-  //       </div>
-  //     ));
-  //   }
-  //   return <p className="text-white">No speech rate data available.</p>;
-  // };
-
-  //  const renderInterruptionsResults = (interruptions) => {
-  //   if (typeof interruptions === 'object' && interruptions !== null) {
-  //     return Object.entries(interruptions).map(([speaker, data]) => (
-  //       <div key={speaker} className="mb-2 bg-purple-600 bg-opacity-50 p-2 rounded">
-  //         <span className="font-bold text-purple-200 mr-2">{speaker} interrupted </span>
-  //         <span className="text-white">
-  //           {Object.entries(data).map(([interruptedSpeaker, count], index, array) => (
-  //             <React.Fragment key={interruptedSpeaker}>
-  //               {interruptedSpeaker} { count } time(s)
-  //               {index < array.length - 1 ? ', ' : ''}
-  //             </React.Fragment>
-  //           ))}
-  //         </span>
-  //       </div>
-  //     ));
-  //   }
-
-  const EngagementMetrics = ({ speakers = [], sentiment = {} }) => {
-    const [isCollapsed, setIsCollapsed] = useState(false)
-    const { positive = 0, neutral = 0, negative = 0 } = sentiment
-  
-    const toggleCollapse = () => {
-      setIsCollapsed(!isCollapsed)
-    }
-  
-    const speakerColors = ['#4ade80', '#fbbf24', '#f87171', '#60a5fa', '#c084fc']
-  
-    return (
-      <div className="bg-gradient-to-br from-purple-600 to-purple-800 rounded-lg overflow-hidden shadow-lg">
-        <div className="flex items-center justify-between p-4 border-b border-purple-500">
-          <div className="flex items-center space-x-2">
-            <Activity className="w-6 h-6 text-green-400" />
-            <h2 className="text-xl font-semibold text-white">Engagement Metrics</h2>
-          </div>
-          <div className="flex items-center space-x-2">
-            <button className="text-white hover:bg-purple-700 rounded-full p-1 transition-colors duration-200">
-              <BarChart2 className="w-6 h-6" />
-            </button>
-            <button
-              onClick={toggleCollapse}
-              className="text-white hover:bg-purple-700 rounded-full p-1 transition-colors duration-200"
-            >
-              {isCollapsed ? (
-                <ChevronDown className="w-6 h-6" />
-              ) : (
-                <ChevronUp className="w-6 h-6" />
-              )}
-            </button>
-          </div>
+  const renderSentimentResults = (sentiment) => {
+    if (typeof sentiment === 'object' && sentiment !== null) {
+      return (
+        <div className="space-y-4">
+          <SentimentBar label="Positive" value={sentiment.average_positive} color="bg-green-500" />
+          <SentimentBar label="Neutral" value={sentiment.average_neutral} color="bg-yellow-500" />
+          <SentimentBar label="Negative" value={sentiment.average_negative} color="bg-red-500" />
         </div>
-        {!isCollapsed && (
-          <div className="p-6 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {speakers.map((speaker, index) => (
-                <div key={speaker.name} className="bg-purple-700 rounded-lg p-4 flex flex-col space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-white flex items-center">
-                      <User className="w-5 h-5 mr-2" style={{ color: speakerColors[index % speakerColors.length] }} />
-                      {speaker.name}
-                    </h3>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-purple-200">Speech Rate</p>
-                      <p className="text-2xl font-bold" style={{ color: speakerColors[index % speakerColors.length] }}>
-                        {speaker.speechRate}
-                      </p>
-                      <p className="text-xs text-purple-200">words/min</p>
-                    </div>
-                    <div className="w-12 h-12 rounded-full border-2 flex items-center justify-center" 
-                         style={{ borderColor: speakerColors[index % speakerColors.length] }}>
-                      <TrendingUp className="w-6 h-6" style={{ color: speakerColors[index % speakerColors.length] }} />
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-purple-200">Interruptions</p>
-                      <p className="text-2xl font-bold" style={{ color: speakerColors[index % speakerColors.length] }}>
-                        {speaker.interruptions}
-                      </p>
-                      <p className="text-xs text-purple-200">times</p>
-                    </div>
-                    <div className="w-12 h-12 rounded-full border-2 flex items-center justify-center"
-                         style={{ borderColor: speakerColors[index % speakerColors.length] }}>
-                      <MessageCircle className="w-6 h-6" style={{ color: speakerColors[index % speakerColors.length] }} />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="bg-purple-700 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-white mb-4">Sentiment Analysis</h3>
-              <div className="flex justify-between items-center">
-                <div className="flex flex-col items-center">
-                  <div className="w-20 h-4 bg-green-400 rounded-full"></div>
-                  <p className="text-sm text-white mt-1">Positive: {positive}%</p>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="w-20 h-4 bg-yellow-400 rounded-full"></div>
-                  <p className="text-sm text-white mt-1">Neutral: {neutral}%</p>
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="w-20 h-4 bg-red-400 rounded-full"></div>
-                  <p className="text-sm text-white mt-1">Negative: {negative}%</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    )
-  }
-  
+      );
+    }
+    return <p className="text-white">No sentiment data available.</p>;
+  };
+
+  const renderSpeechRateResults = (speechRate) => {
+    if (typeof speechRate === 'object' && speechRate !== null) {
+      return Object.entries(speechRate).map(([speaker, data]) => (
+        <div key={speaker} className="mb-2 bg-purple-600 bg-opacity-50 p-2 rounded flex items-center">
+          <span className="font-bold text-purple-200 mr-2">{speaker}:</span>
+          <span className="text-white">
+            {data.speech_rate.toFixed(2)} words per minute
+          </span>
+        </div>
+      ));
+    }
+    return <p className="text-white">No speech rate data available.</p>;
+  };
+  const renderInterruptionsResults = (interruptions) => {
+    if (typeof interruptions === 'object' && interruptions !== null) {
+      return Object.entries(interruptions).map(([speaker, data]) => (
+        <div key={speaker} className="mb-2 bg-purple-600 bg-opacity-50 p-2 rounded">
+          <span className="font-bold text-purple-200 mr-2">{speaker} interrupted </span>
+          <span className="text-white">
+            {Object.entries(data).map(([interruptedSpeaker, count], index, array) => (
+              <React.Fragment key={interruptedSpeaker}>
+                {interruptedSpeaker} { count } time(s)
+                {index < array.length - 1 ? ', ' : ''}
+              </React.Fragment>
+            ))}
+          </span>
+        </div>
+      ));
+    }
     return <p className="text-white">No interruptions data available.</p>;
   };
   const sections = result ? [
     { key: 'summary', title: 'Summary', content: result.summary },
     { key: 'transcript', title: 'Transcript', content: result.transcript_result },
-    //{ key: 'diarization', title: 'Speech Diarization', content: result.diarization_results, render: renderDiarizationResults },
+    { key: 'diarization', title: 'Speech Diarization', content: result.diarization_results, render: renderDiarizationResults },
     { key: 'todos', title: 'Todos', content: result.todos },
-    //{ key: 'sentiment', title: 'Sentiment', content: result.sentiment, render: renderSentimentResults },
-   // { key: 'speechRate', title: 'Speech Rate', content: result.speech_rate, render: renderSpeechRateResults },
+    { key: 'sentiment', title: 'Sentiment', content: result.sentiment, render: renderSentimentResults },
+    { key: 'speechRate', title: 'Speech Rate', content: result.speech_rate, render: renderSpeechRateResults },
     { key: 'interruptions', title: 'Interruptions', content: result.interruptions, render: renderInterruptionsResults },
   ].filter(section => {
     if (Array.isArray(section.content)) {
@@ -509,22 +411,4 @@ const ResultsPage = () => {
   );
 };
 
-export  function Component() {
-  const demoData = {
-    speakers: [
-      { name: 'Speaker 1', speechRate: 150, interruptions: 3 },
-      { name: 'Speaker 2', speechRate: 130, interruptions: 5 },
-      { name: 'Speaker 3', speechRate: 170, interruptions: 2 },
-    ],
-    sentiment: {
-      positive: 60,
-      neutral: 30,
-      negative: 10,
-    },
-  }
-
-  return <EngagementMetrics {...demoData} />
-}
-
 export default ResultsPage;
-
