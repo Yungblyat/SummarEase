@@ -226,7 +226,7 @@ const ResultsPage = () => {
   };
 
   const renderEngagementMetrics = (result) => {
-    const { interruptions, speech_rate, sentiment } = result
+    const { interruptions, speech_rate, sentiment, metrics } = result
 
     return (
       <div className="engagement-metrics">
@@ -264,6 +264,20 @@ const ResultsPage = () => {
               ))
             ) : (
               <p className="text-white">{speech_rate} words per minute</p>
+            )}
+          </div>
+        )}
+        {metrics && (
+          <div className="metrics mb-4">
+            <h3 className="text-lg font-bold text-purple-400 mb-2">Metrics</h3>
+            {typeof metrics === 'object' && metrics !== null ? (
+              Object.entries(metrics).map(([speaker, data]) => (
+                <p key={speaker} className="text-white">
+                  {speaker}: Total Time: {data.total_time}, Turns: {data.turns}, Avg_Time_Per_turn: {data.average_time_per_turn}
+                </p>
+              ))
+            ) : (
+              <p className="text-white">{metrics} Blyat</p>
             )}
           </div>
         )}
