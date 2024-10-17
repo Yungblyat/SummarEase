@@ -25,56 +25,56 @@ SummarEase is a web application that allows users to upload audio files for adva
 
 1. Clone the repository:
 
-   \`\`\`bash
+   ```
    git clone https://github.com/Yungblyat/SummarEase.git
    cd SummarEase
-   \`\`\`
+   ```
 
 2. Create a virtual environment and install the dependencies:
 
-   \`\`\`bash
+   ```
    python3 -m venv env
    source env/bin/activate
    pip install -r requirements.txt
-   \`\`\`
+   ```
 
 3. Set up the database:
 
-   ``` bash
+   ```
    python manage.py migrate
    ```
 
 4. Create a superuser:
 
-   \`\`\`bash
+   ```
    python manage.py createsuperuser
-   \`\`\`
+   ```
 
 5. Start the Django development server:
 
-   \`\`\`bash
+   ```
    python manage.py runserver
-   \`\`\`
+   ```
 
 ### Frontend (React)
 
 1. Navigate to the frontend directory:
 
-   \`\`\`bash
+   ```
    cd frontend
-   \`\`\`
+   ```
 
 2. Install the frontend dependencies:
 
-   \`\`\`bash
+   ```
    npm install
-   \`\`\`
+   ```
 
 3. Start the frontend development server:
 
-   \`\`\`bash
+   ```
    npm run dev
-   \`\`\`
+   ```
 
 ## Usage
 
