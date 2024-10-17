@@ -85,7 +85,7 @@ SummarEase is a web application that allows users to upload audio files for adva
 
 ## Project Structure
 
-\`\`\`
+```
 SummarEase/
 │
 ├── backend/
@@ -99,7 +99,7 @@ SummarEase/
 │   └── styles/           # Tailwind CSS styles
 │
 └── README.md             # Project documentation
-\`\`\`
+```
 
 ## API Endpoints
 
