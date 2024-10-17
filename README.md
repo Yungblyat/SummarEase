@@ -40,9 +40,9 @@ SummarEase is a web application that allows users to upload audio files for adva
 
 3. Set up the database:
 
-   \`\`\`bash
+   \``` bash
    python manage.py migrate
-   \`\`\`
+   ```
 
 4. Create a superuser:
 
