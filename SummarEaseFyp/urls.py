@@ -25,6 +25,7 @@ urlpatterns = [
     path('summarease/', include('SummarEaseApp.urls')),
     path('auth/', include('authentication.urls')),  # Include your app's URLs here
     path('email/', include('Email.urls')),
+    path('chatbot/', include('chatbot.urls'))
 ]
 
 if settings.DEBUG:

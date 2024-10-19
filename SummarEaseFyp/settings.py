@@ -38,7 +38,7 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")  # Your email password
 DEFAULT_FROM_EMAIL = os.getenv("EMAIL_HOST_USER")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -79,7 +79,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "Email",
-    'social_django',
+    "social_django",
+    "chatbot",
 ]
 
 MIDDLEWARE = [

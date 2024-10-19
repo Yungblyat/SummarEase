@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { CheckCircle, ChevronDown, ChevronUp, Copy, Download, Mail } from 'lucide-react';
 import { Document, Page, Text, View, StyleSheet, PDFDownloadLink } from '@react-pdf/renderer';
 import EmailModal from './EmailModal';
+import ChatInterface from './Chat';
 
 
 // Define styles for PDF
@@ -439,6 +440,7 @@ const ResultsPage = () => {
           scrollbar-width: none;
         }
       `}</style>
+      <ChatInterface></ChatInterface>
     </div>
   );
 };
