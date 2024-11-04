@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { CheckCircle, ChevronDown, ChevronUp, Copy, Download, Mail } from 'lucide-react';
+import { CheckIcon, ChevronDown, ChevronUp, CopyIcon, Download, Mail, FileUp, CheckSquare, BarChart2, ListTodo, ClipboardPen } from 'lucide-react';
 import { Document, Page, Text, View, StyleSheet, PDFDownloadLink } from '@react-pdf/renderer';
 import EmailModal from './EmailModal';
 import ChatInterface from './Chat';
+import "../styles/Result.css"
+
 
 
 // Define styles for PDF
@@ -217,7 +219,7 @@ const ResultsPage = () => {
   const renderDiarizationResults = (diarization) => {
     if (typeof diarization === 'object' && diarization !== null) {
       return Object.entries(diarization).map(([speaker, text], i) => (
-        <div key={i} className="mb-2 bg-purple-600 bg-opacity-50 p-2 rounded">
+        <div key={i} className="mb-2 p-2 rounded">
           {/* <span className="font-bold text-purple-200">{speaker}:</span> */}
           <p className="ml-4 text-white">{text}</p>
         </div>
@@ -236,7 +238,7 @@ const ResultsPage = () => {
             <h3 className="text-lg font-bold text-purple-400 mb-2">Interruptions</h3>
             {typeof interruptions === 'object' && interruptions !== null ? (
               Object.entries(interruptions).map(([speaker, data]) => (
-                <div key={speaker} className="mb-2 bg-purple-600 bg-opacity-50 p-2 rounded">
+                <div key={speaker} className="mb-2 p-2 rounded">
                   <span className="font-bold text-purple-200 mr-2">{speaker} interrupted:</span>
                   <span className="text-white">
                     {Object.entries(data).map(([interruptedSpeaker, count], index, array) => (
@@ -303,11 +305,11 @@ const ResultsPage = () => {
 
   const sections = result
     ? [
-        { key: 'summary', title: 'Summary', content: result.summary },
-        { key: 'transcript', title: 'Transcript', content: result.transcript_result },
-        { key: 'diarization', title: 'Speech Diarization', content: result.diarization_results, render: renderDiarizationResults },
-        { key: 'todos', title: 'Todos', content: result.todos },
-        { key: 'engagementMetrics', title: 'Engagement Metrics', content: result, render: renderEngagementMetrics },
+        { key: 'summary', title: 'Summary', content: result.summary, image: <FileUp />},
+        { key: 'transcript', title: 'Transcript', content: result.transcript_result, image: <ClipboardPen /> },
+        { key: 'diarization', title: 'Speech Diarization', content: result.diarization_results, render: renderDiarizationResults, image: <CheckSquare  /> },
+        { key: 'todos', title: 'Todos', content: result.todos, image: <ListTodo /> },
+        { key: 'engagementMetrics', title: 'Engagement Metrics', content: result, render: renderEngagementMetrics, image: <BarChart2 /> },
       ].filter((section) => {
         if (Array.isArray(section.content)) {
           return section.content.length > 0
@@ -326,6 +328,36 @@ const ResultsPage = () => {
     }
     navigator.clipboard.writeText(text);
   };
+
+
+  const CopyButton = ({ content }) => {
+    const [isCopied, setIsCopied] = useState(false); // State to track if text is copied
+
+    const handleCopy = (e) => {
+        e.stopPropagation(); // Prevent event bubbling
+        navigator.clipboard.writeText(content) // Use the Clipboard API to copy text
+            .then(() => {
+                setIsCopied(true); // Set copied state
+                setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
+            })
+            .catch((err) => console.error('Failed to copy: ', err));
+    };
+
+    return (
+        <div className="flex items-center space-x-2">
+            {isCopied ? (
+                <CheckIcon className="h-5 w-5 text-green-300" /> // Show check icon when copied
+            ) : (
+                <CopyIcon 
+                    className="h-5 w-5 cursor-pointer" 
+                    onClick={handleCopy} // Call handleCopy directly
+                /> // Show copy icon when not copied
+            )}
+        </div>
+    );
+  }
+
+
 
   const renderContent = (section) => {
     if (section.render) {
@@ -357,30 +389,26 @@ const ResultsPage = () => {
   return (
     <div 
       ref={pageRef}
-      className="min-h-screen bg-gradient-to-br from-purple-600 to-indigo-800 text-white overflow-y-auto scrollbar-hide"
+      className="result-page"
       style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
     >
-      <div className="max-w-3xl mx-auto p-8">
-        <h1 className="text-4xl font-bold mb-8 text-center">Results</h1>
+      <div className="main-result-page">
+        <h1 className="main-title">Results</h1>
         <div className="space-y-4 mb-8">
           {sections.map((section) => (
-            <div key={section.key} className="bg-purple-700 bg-opacity-50 rounded-lg overflow-hidden border border-purple-500">
+            <div key={section.key} className="box">
               <button
                 className="w-full flex items-center justify-between p-4 text-left focus:outline-none"
                 onClick={() => toggleSection(section.key)}
               >
                 <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-5 w-5 text-green-400" />
+                 
+                  <span  className="h-5 w-5 text-green-300" >{section.image}</span>
                   <span className="text-xl font-semibold">{section.title}</span>
                 </div>
+                
                 <div className="flex items-center space-x-2">
-                  <Copy
-                    className="h-5 w-5 cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      copyToClipboard(section.content);
-                    }}
-                  />
+                <CopyButton content={section.content} />
                   {expandedSections[section.key] ? (
                     <ChevronUp className="h-5 w-5" />
                   ) : (
@@ -389,7 +417,7 @@ const ResultsPage = () => {
                 </div>
               </button>
               {expandedSections[section.key] && (
-                <div className="p-4 bg-purple-800 bg-opacity-50 border-t border-purple-500 max-h-96 overflow-y-auto scrollbar-hide">
+                <div className="box-text">
                   {renderContent(section)}
                 </div>
               )}

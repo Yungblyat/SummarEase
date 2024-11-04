@@ -1,0 +1,73 @@
+.result-page
+{
+    height: 100%;
+    /* background: linear-gradient(to top right, #2A1455,#402194, #562CDE); */
+    background: url(https://img.freepik.com/free-vector/violet-blurred-background_1035-3289.jpg?t=st=1729778979~exp=1729782579~hmac=0ff1699420454e75769ee8ceaf63977161627bb1aaab087c01603e334f8b1f5f&w=1380);
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    color: white;
+    overflow-y: auto;
+}
+
+.main-result-page 
+{
+    max-width: 58rem;  /* max-w-3xl */
+    margin-left: auto; /* mx-auto */
+    margin-right: auto; /* mx-auto */
+    padding: 2rem;     /* p-8 */
+}
+
+.main-title
+{
+    font-size: 3.25rem; /* text-4xl */
+    font-weight: bold;  /* font-bold */
+    margin-bottom: 2rem; /* mb-8 */
+    text-align: center;  /* text-center */
+}
+
+/* Equivalent of space-y-4 */
+.result-content > * + * {
+    margin-top: 16px; /* 1rem (16px) */
+  }
+  
+  /* Equivalent of mb-8 */
+  .result-content {
+    margin-bottom: 32px; /* 2rem (32px) */
+  }
+
+  .box {
+    background: rgba(255, 255, 255, 0.2); /* Semi-transparent white background */
+    backdrop-filter: blur(15px); /* Apply a blur effect */
+    border-radius: 1rem; /* Rounded corners */
+    overflow: hidden; /* Hide any overflow content */
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Light border for better definition */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Softer shadow for depth */
+}
+
+.box-text {
+    padding: 1.5rem; /* p-4 */
+    background: rgba(255, 255, 255, 0.1); /* Very light background for the text area */
+    border-top: 1px solid rgba(255, 255, 255, 0.5); /* Light border for separation */
+    max-height: 24rem; /* max-h-96 (24rem = 384px) */
+    overflow-y: auto; /* Allow vertical scrolling */
+    border-radius: 0 0 1rem 1rem; /* Rounded corners at the bottom */
+    
+    /* Custom Scrollbar Styles */
+    scrollbar-width: thin; /* For Firefox: thin scrollbar */
+    scrollbar-color: rgba(255, 255, 255, 0.5) rgba(133, 123, 141, 0.2); /* Thumb and track colors for Firefox */
+}
+
+.box-text::-webkit-scrollbar {
+    width: 8px; /* Set scrollbar width */
+}
+
+.box-text::-webkit-scrollbar-track {
+    background: rgba(133, 123, 141, 0.2); /* Light background for scrollbar track */
+    border-radius: 1rem; /* Rounded corners for the track */
+}
+
+.box-text::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.5); /* Semi-transparent thumb for the scrollbar */
+    border-radius: 1rem; /* Rounded scrollbar thumb */
+    border: 2px solid rgba(133, 123, 141, 0.2); /* Border for thumb to blend in with the glass pane */
+}

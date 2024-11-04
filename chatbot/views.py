@@ -1,8 +1,9 @@
 # chatbot/views.py
+
 import os
 import pickle
 import faiss
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from langchain_groq import ChatGroq
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains.combine_documents import create_stuff_documents_chain
@@ -18,6 +19,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
 from SummarEaseFyp.settings import BASE_DIR
+from SummarEaseApp.models import AudioFile, SpeakerDiarization
 
 warnings.filterwarnings("ignore", category=FutureWarning, message="clean_up_tokenization_spaces was not set")
 
@@ -30,6 +32,7 @@ prompt = ChatPromptTemplate.from_template(
     """
     Answer the question based on the provided meeting document context.
     Context: {context}
+    Diarization: {diarization_content}
     Question: {input}
     """
 )
@@ -73,25 +76,40 @@ def load_embeddings():
 
 vectors = load_embeddings()
 
-def handle_user_query(user_query):
+def handle_user_query(user_query, diarization_content):
+    # Modify document chain prompt with diarization context
     document_chain = create_stuff_documents_chain(llm, prompt)
     retriever = vectors.as_retriever()
     retrieval_chain = create_retrieval_chain(retriever, document_chain)
     
-    response = retrieval_chain.invoke({'input': user_query})
+    # Include diarization content in the context for the question
+    context = {'input': user_query, 'diarization_content': diarization_content}
+    response = retrieval_chain.invoke(context)
     return response['answer']
 
-def chatbot_view(request):
-    response = ""
-    if request.method == "POST":
-        user_query = request.POST.get('user_query')
-        response = handle_user_query(user_query)
-    return render(request, 'chatbot/chatbot.html', {'response': response})
-
+# def chatbot_view(request):
+#     response = ""
+#     if request.method == "POST":
+#         user_query = request.POST.get('user_query')
+#         response = handle_user_query(user_query, "")
+#     return render(request, 'chatbot/chatbot.html', {'response': response})
 
 @api_view(["POST"])
 def chatbot_endpoint(request):
     message = request.data.get("message", None)
-    file_id = request.data.get("fileId", None) # To help with finding context
-    # Process the message here and send it as a string response
-    return Response("Message Recieved Successfully")
+    file_id = request.data.get("fileId", None)
+    audio_file = get_object_or_404(AudioFile, id=file_id, user=request.user)
+
+    # Get diarization content for context
+    diarization = getattr(audio_file, 'speaker_diarization', None)
+    
+    diarization_content = ""
+    if diarization:
+        diarization_content = "\n".join(
+            f"{segment.get('speaker')}: {segment.get('text').lstrip()}"
+            for segment in diarization.content["segments"]
+        )
+
+    # Pass the message and diarization content to the query handler
+    response = handle_user_query(message, diarization_content)
+    return Response(response)

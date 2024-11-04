@@ -1,26 +1,25 @@
-import React, { useState, Fragment } from 'react'
-import { Transition } from '@headlessui/react'
-import { ChevronDown, X, Send, MessageCircle } from 'lucide-react'
-import api from "../api"
-import { FILE_ID } from '../constants'
-import { useEffect } from 'react'
+import React, { useState, Fragment, useEffect } from 'react';
+import { Transition } from '@headlessui/react';
+import { ChevronDown, X, Send, MessageCircle } from 'lucide-react';
+import api from "../api";
+import { FILE_ID } from '../constants';
 
 export default function ChatInterface() {
-  const [isVisible, setIsVisible] = useState(false)
+  const [isVisible, setIsVisible] = useState(false);
   const [messages, setMessages] = useState([
     { id: 1, text: "Hi 👋 How can I help you?", sender: 'assistant' },
     { id: 2, text: "Looking for my package", sender: 'user' },
     { id: 3, text: "Let's take care of your order 📦 Please choose the right topic:", sender: 'assistant' },
-  ])
-  const [inputMessage, setInputMessage] = useState('')
-  const [fileId, setFileId] = useState(null) // Added fileId state
+  ]);
+  const [inputMessage, setInputMessage] = useState('');
+  const [fileId, setFileId] = useState(null);
 
   useEffect(() => {
-    const storedFileId = localStorage.getItem(FILE_ID)
+    const storedFileId = localStorage.getItem(FILE_ID);
     if (storedFileId) {
-      setFileId(storedFileId)
+      setFileId(storedFileId);
     }
-  }, [])
+  }, []);
 
   async function sendReceiveMessage(message) {
     try {
@@ -32,27 +31,25 @@ export default function ChatInterface() {
     }
   }
 
-
-
   const quickReplies = [
-    { id: 1, text: "Track my order 📦" },
-    { id: 2, text: "How do I track my order (FAQ)?" },
-  ]
+    { id: 1, text: "List key Items" },
+    { id: 2, text: "Summarize Further" },
+  ];
 
-  const toggleChat = () => setIsVisible(!isVisible)
+  const toggleChat = () => setIsVisible(!isVisible);
 
-  const handleSendMessage = async () => {
-    if (inputMessage.trim()) {
-      setMessages([...messages, { id: messages.length + 1, text: inputMessage, sender: 'user' }])
-      setInputMessage('')
+  const handleSendMessage = async (messageText = inputMessage) => {
+    if (messageText.trim()) {
+      setMessages([...messages, { id: messages.length + 1, text: messageText, sender: 'user' }]);
+      setInputMessage('');
       try {
-        const response = await sendReceiveMessage(inputMessage);
+        const response = await sendReceiveMessage(messageText);
         setMessages(prevMessages => [...prevMessages, { id: prevMessages.length + 1, text: response, sender: 'assistant' }]);
       } catch (error) {
         setMessages(prevMessages => [...prevMessages, { id: prevMessages.length + 1, text: "Sorry, there was an error processing your message.", sender: 'assistant' }]);
       }
     }
-  }
+  };
 
   return (
     <div className="fixed bottom-4 right-4 flex flex-col items-end">
@@ -109,7 +106,7 @@ export default function ChatInterface() {
                 <button
                   key={reply.id}
                   className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm hover:bg-blue-200 transition-colors"
-                  onClick={() => setMessages([...messages, { id: messages.length + 1, text: reply.text, sender: 'user' }])}
+                  onClick={() => handleSendMessage(reply.text)} // Call handleSendMessage with reply text
                 >
                   {reply.text}
                 </button>
@@ -143,5 +140,5 @@ export default function ChatInterface() {
         </button>
       </div>
     </div>
-  )
+  );
 }

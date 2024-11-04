@@ -23,6 +23,10 @@ from rest_framework.permissions import IsAuthenticated
 from django.views.decorators.csrf import csrf_exempt
 import json
 from .serializers import AudioFileSerializer
+from datetime import timedelta
+
+def format_time(seconds):
+    return str(timedelta(seconds=round(seconds)))[2:]
 
 
 #Note: Move the ultity function to a seperate utilty file
@@ -166,7 +170,10 @@ def process_diarization_result(diarization_result):
     for segment in diarization_result["segments"]:
         speaker = segment.get("speaker", "Unknown")
         text = segment.get("text", "Unknown").lstrip()
-        results.append(f"{speaker}: {text}")
+        start_time = segment.get("start", 0)  # Assuming start_time is in seconds
+        formatted_time = format_time(start_time)  # Format the start time
+
+        results.append(f"{speaker} ({formatted_time}): {text}")
     return results
 
 @api_view(['GET'])
@@ -193,8 +200,12 @@ def show_result_for_file(request):
     if transcription:
         transcript_result = ''.join([f"{segment.get('text').lstrip()}" for segment in transcription.content["segments"]])
 
+    print(diarization)
     if diarization:
-        diarization_results = [f"{segment.get('speaker')}: {segment.get('text').lstrip()}" for segment in diarization.content["segments"]]
+        diarization_results = [
+        f"{segment.get('speaker')} ({format_time(segment.get('start', 0))}): {segment.get('text').lstrip()}"
+        for segment in diarization.content["segments"]
+        ]
 
         # Fetch summary if available
     summary_instance = Summary.objects.filter(audio_file=audio_file).first()
