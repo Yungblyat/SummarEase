@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { CheckIcon, ChevronDown, ChevronUp, CopyIcon, Download, Mail, FileUp, CheckSquare, BarChart2, ListTodo, ClipboardPen } from 'lucide-react';
+import { CheckIcon, ChevronDown, ChevronUp, CopyIcon, Download, Mail, FileUp, CheckSquare, BarChart2, ListTodo, ClipboardPen, SquareChevronLeft, MessageSquare, Activity, Speech, Zap  } from 'lucide-react';
 import { Document, Page, Text, View, StyleSheet, PDFDownloadLink } from '@react-pdf/renderer';
 import EmailModal from './EmailModal';
 import ChatInterface from './Chat';
 import "../styles/Result.css"
+
 
 
 
@@ -182,6 +183,9 @@ const ResultsPage = () => {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [emails, setEmails] = useState([]);
   const pageRef = useRef(null);
+  const goToHome= () => {
+    navigate('/');
+  };
 
   useEffect(() => {
     if (location.state?.result) {
@@ -234,8 +238,12 @@ const ResultsPage = () => {
     return (
       <div className="engagement-metrics">
         {interruptions && (
-          <div className="interruptions mb-4">
-            <h3 className="text-lg font-bold text-purple-400 mb-2">Interruptions</h3>
+          <div className="engagement-metrics-container">
+            <div className="heading-div">
+              <MessageSquare className="icons"/>
+               <h2 className="heading">Interruptions</h2>
+            </div>
+          
             {typeof interruptions === 'object' && interruptions !== null ? (
               Object.entries(interruptions).map(([speaker, data]) => (
                 <div key={speaker} className="mb-2 p-2 rounded">
@@ -257,8 +265,12 @@ const ResultsPage = () => {
         )}
 
         {speech_rate && (
-          <div className="speech-rate mb-4">
-            <h3 className="text-lg font-bold text-purple-400 mb-2">Speech Rate</h3>
+          <div className="engagement-metrics-container">
+            <div className='heading-div'>
+              <Speech className='icons'/>
+               <h2 className="heading">Speech Rate</h2>
+            </div>
+            
             {typeof speech_rate === 'object' && speech_rate !== null ? (
               Object.entries(speech_rate).map(([speaker, rate]) => (
                 <p key={speaker} className="text-white">
@@ -271,8 +283,12 @@ const ResultsPage = () => {
           </div>
         )}
         {metrics && (
-          <div className="metrics mb-4">
-            <h3 className="text-lg font-bold text-purple-400 mb-2">Metrics</h3>
+          <div className="engagement-metrics-container">
+            <div className='heading-div'>
+              <Activity className='icons'/>
+              <h2 className="heading">Metrics</h2>
+            </div>
+            
             {typeof metrics === 'object' && metrics !== null ? (
               Object.entries(metrics).map(([speaker, data]) => (
                 <p key={speaker} className="text-white">
@@ -285,19 +301,30 @@ const ResultsPage = () => {
           </div>
         )}
 
-        {sentiment && (
-          <div className="sentiment mb-4">
-            <h3 className="text-lg font-bold text-purple-400 mb-2">Sentiment Analysis</h3>
-            {typeof sentiment === 'object' && sentiment !== null ? (
-              Object.entries(sentiment).map(([key, value]) => (
-                <p key={key} className="text-white">
-                  {key.charAt(0).toUpperCase() + key.slice(1)}: {value.toFixed(2)}%
-                </p>
-              ))
-            ) : (
-              <p className="text-white">Overall sentiment: {sentiment}</p>
-            )}
+{sentiment && (
+  <div className="engagement-metrics-container">
+    <div className='heading-div'>
+      <Zap className='icons'/>
+      <h3 className="heading">Sentiment Analysis</h3>
+    </div>
+
+    {typeof sentiment === 'object' && sentiment !== null ? (
+      Object.entries(sentiment).map(([key, value]) => {
+        // Determine color based on sentiment value
+        let color = 'bg-yellow-500'; // default color for neutral
+        if (value > 50) color = 'bg-green-500'; // positive sentiment (good)
+        if (value < -50) color = 'bg-red-500'; // negative sentiment (bad)
+
+        return (
+          <div key={key} className="mb-4">
+            <SentimentBar label={key.charAt(0).toUpperCase() + key.slice(1)} value={value.toFixed(2)} color={color} />
           </div>
+        );
+      })
+    ) : (
+      <p className="text-white">Overall sentiment: {sentiment}</p>
+    )}
+  </div>
         )}
       </div>
     )
@@ -318,7 +345,7 @@ const ResultsPage = () => {
       })
     : []
 
-
+   
   const copyToClipboard = (content) => {
     let text;
     if (typeof content === 'object' && content !== null) {
@@ -386,6 +413,7 @@ const ResultsPage = () => {
     return <div className="min-h-screen bg-gradient-to-br from-purple-600 to-indigo-800 text-white p-8 flex items-center justify-center">Loading...</div>;
   }
 
+  
   return (
     <div 
       ref={pageRef}
@@ -393,6 +421,11 @@ const ResultsPage = () => {
       style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
     >
       <div className="main-result-page">
+       
+        <div onClick={goToHome} className='back-btn-div'>
+          <SquareChevronLeft className="back-btn" />
+         
+        </div>
         <h1 className="main-title">Results</h1>
         <div className="space-y-4 mb-8">
           {sections.map((section) => (

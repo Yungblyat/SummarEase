@@ -5,10 +5,15 @@ import api from '../api'
 import { ACCESS_TOKEN, REFRESH_TOKEN } from '../constants'
 import GoogleSignIn from './GoogleLogin'
 import "../styles/Login.css"
+import "../styles/ForgotPassword.css"
 
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
 const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/
+
+
+
+
 
 export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
   const [error, setError] = useState('')
@@ -70,6 +75,39 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
     }
   }
 
+ 
+ 
+  const ForgotPasswordForm = () => {
+    return (
+      
+      <div className="form-container">
+        <div className="close-btn-container">
+          <button onClick={closeHandleForgotPassword} className="close-btn">
+            <X />
+          </button>
+         </div>
+        <div className="logo-container">Forgot Password</div>
+        <form className="form">
+          <div className="form-group">
+            <input type="text" id="email" name="email" placeholder="Enter your email" required />
+          </div>
+          <button className="form-submit-btn" type="submit">Send Email</button>
+        </form>
+      </div>
+    );
+  };
+  
+  
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  
+  // Function to handle the click event
+  const handleForgotPassword = () => {
+    setShowForgotPassword(true);
+  };
+
+  const closeHandleForgotPassword=()=>{
+    setShowForgotPassword(false);
+  }
   return (
     <Dialog open={isOpen} onClose={onClose}>
       <div className="login-popup" />
@@ -115,7 +153,10 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
             </div>
             {!isSignUp && (
               <div className="text-right">
-                <a href="#" className="forgot">Forgot Password?</a>
+                <a href="#" className="forgot" onClick={handleForgotPassword} >Forgot Password?</a>
+                 
+                  {showForgotPassword && <ForgotPasswordForm />}
+                            
               </div>
             )}
             <button

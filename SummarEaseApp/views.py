@@ -21,7 +21,7 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.views.decorators.csrf import csrf_exempt
-import json
+import json,time
 from .serializers import AudioFileSerializer
 from datetime import timedelta
 
@@ -58,11 +58,12 @@ def upload_audio(request):
             audio_file = form.save(commit=False)
             audio_file.user = request.user
             audio_file.save()
+            start_time = time.time()
             file_path = os.path.join(settings.MEDIA_ROOT, audio_file.file.name)
             try:
                 output = main(
                     device="cuda",
-                    model="base",
+                    model="small",
                     audio_file=file_path,
                     transcription_file=True,
                     diarization_file=options.get("diarization")
@@ -134,6 +135,9 @@ def upload_audio(request):
                 )
 
                 diarization_results = process_diarization_result(diarization_content)
+                end_time = time.time()
+                runtime = end_time - start_time
+                print(f"Runtime: {runtime} seconds")
                 return JsonResponse({
                     'diarization_results': diarization_results,
                     'transcript_result': ''.join([f"{segment.get('text').lstrip()}" for segment in transcript_content.get("segments", [])]),

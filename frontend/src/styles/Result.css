@@ -1,12 +1,13 @@
 .result-page
 {
     height: 100%;
-    /* background: linear-gradient(to top right, #2A1455,#402194, #562CDE); */
-    background: url(https://img.freepik.com/free-vector/violet-blurred-background_1035-3289.jpg?t=st=1729778979~exp=1729782579~hmac=0ff1699420454e75769ee8ceaf63977161627bb1aaab087c01603e334f8b1f5f&w=1380);
+    background: linear-gradient(to top right, #2A1455,#402194, #562CDE);
+    /* background: url(https://img.freepik.com/free-vector/violet-blurred-background_1035-3289.jpg?t=st=1729778979~exp=1729782579~hmac=0ff1699420454e75769ee8ceaf63977161627bb1aaab087c01603e334f8b1f5f&w=1380); */
     background-repeat: no-repeat;
     background-size: 100% 100%;
     color: white;
     overflow-y: auto;
+    font-family:sans-serif;
 }
 
 .main-result-page 
@@ -70,4 +71,52 @@
     background: rgba(255, 255, 255, 0.5); /* Semi-transparent thumb for the scrollbar */
     border-radius: 1rem; /* Rounded scrollbar thumb */
     border: 2px solid rgba(133, 123, 141, 0.2); /* Border for thumb to blend in with the glass pane */
+}
+
+.back-btn-div
+{
+    position: absolute;
+    top: 2rem;
+    left: 1rem;
+}
+
+.back-btn
+{
+    cursor: pointer;
+    height: 10vh;
+    width: 7vh;
+}
+
+.heading-div
+{
+    display: flex;
+    margin-bottom: 10px;
+
+}
+
+.engagement-metrics-container
+{
+    background: rgba(255, 255, 255, 0.1); /* Soft, semi-transparent background */
+    backdrop-filter: blur(20px) saturate(180%); /* Strong blur and vibrant colors */
+    -webkit-backdrop-filter: blur(20px) saturate(180%); /* Ensures compatibility on Safari */
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Thin, translucent border */
+    border-radius: 20px; /* Smooth, rounded corners */
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); /* Soft, diffused shadow */
+    padding: 20px;
+    transition: all 0.3s ease;
+    margin-bottom: 30px;
+    
+}
+
+.icons
+{
+    height: 4vh;
+    width: 4vh;
+}
+
+.heading
+{
+    font-size: 22px;
+    margin-left: 5px;
+    margin-top: -3px;
 }
