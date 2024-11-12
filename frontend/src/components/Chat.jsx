@@ -1,18 +1,20 @@
-import React, { useState, Fragment, useEffect } from 'react';
+import React, { useState, Fragment, useEffect, useRef } from 'react';
 import { Transition } from '@headlessui/react';
 import { ChevronDown, X, Send, MessageCircle } from 'lucide-react';
 import api from "../api";
 import { FILE_ID } from '../constants';
+import "../styles/Chat.css";
+import bot_icon from "../assets/bot.png";
 
 export default function ChatInterface() {
   const [isVisible, setIsVisible] = useState(false);
   const [messages, setMessages] = useState([
-    { id: 1, text: "Hi 👋 How can I help you?", sender: 'assistant' },
-    { id: 2, text: "Looking for my package", sender: 'user' },
-    { id: 3, text: "Let's take care of your order 📦 Please choose the right topic:", sender: 'assistant' },
+    { id: 1, text: "Hi How can I help you? Feel free to ask anything", sender: 'assistant' },
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [fileId, setFileId] = useState(null);
+
+  const messagesEndRef = useRef(null); // Reference to scroll to
 
   useEffect(() => {
     const storedFileId = localStorage.getItem(FILE_ID);
@@ -20,6 +22,11 @@ export default function ChatInterface() {
       setFileId(storedFileId);
     }
   }, []);
+
+  useEffect(() => {
+    // Scroll to bottom every time a new message is added
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]); // Re-run this effect when messages change
 
   async function sendReceiveMessage(message) {
     try {
@@ -40,7 +47,7 @@ export default function ChatInterface() {
 
   const handleSendMessage = async (messageText = inputMessage) => {
     if (messageText.trim()) {
-      setMessages([...messages, { id: messages.length + 1, text: messageText, sender: 'user' }]);
+      setMessages(prevMessages => [...prevMessages, { id: prevMessages.length + 1, text: messageText, sender: 'user' }]);
       setInputMessage('');
       try {
         const response = await sendReceiveMessage(messageText);
@@ -63,27 +70,26 @@ export default function ChatInterface() {
         leaveFrom="opacity-100 scale-100"
         leaveTo="opacity-0 scale-95"
       >
-        <div className="w-full max-w-md bg-white rounded-xl shadow-lg overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-4 flex items-center justify-between">
+        <div className="bot">
+          <div className="bot-header">
             <div className="flex items-center space-x-3">
-              <img src="/placeholder.svg?height=40&width=40" alt="Profile" className="w-10 h-10 rounded-full" />
+              <img src={bot_icon} alt="Profile" className="w-10 h-10" />
               <div>
-                <h2 className="text-white font-semibold">Chat with Jessica Smith</h2>
-                <p className="text-blue-100 text-sm">We are online!</p>
+                <h2 className="text-white font-semibold">Chat with SumAssist</h2>
+                <p className="text-blue-100 text-sm">Powered by Grok</p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              <button className="text-white hover:bg-blue-700 rounded-full p-1">
-                <ChevronDown className="h-5 w-5" />
-              </button>
               <button
                 onClick={toggleChat}
-                className="text-white hover:bg-blue-700 rounded-full p-1"
+                className="text-white hover:bg-purple-400ß rounded-full p-1"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
           </div>
+          
+          
           <div className="h-96 overflow-y-auto p-4 space-y-4">
             {messages.map((message) => (
               <div
@@ -93,7 +99,7 @@ export default function ChatInterface() {
                 <div
                   className={`max-w-xs px-4 py-2 rounded-lg ${
                     message.sender === 'user'
-                      ? 'bg-blue-500 text-white'
+                      ? 'bg-purple-400 text-white'
                       : 'bg-gray-100 text-gray-800'
                   }`}
                 >
@@ -101,40 +107,49 @@ export default function ChatInterface() {
                 </div>
               </div>
             ))}
+            
+            {/* This will scroll into view */}
+            <div ref={messagesEndRef} />
+            
+            {/* Quick reply buttons */}
             <div className="flex flex-wrap gap-2">
               {quickReplies.map((reply) => (
                 <button
                   key={reply.id}
-                  className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm hover:bg-blue-200 transition-colors"
-                  onClick={() => handleSendMessage(reply.text)} // Call handleSendMessage with reply text
+                  className="bg-purple-950 text-white px-3 py-1 rounded-full text-sm hover:bg-purple-400 transition-colors"
+                  onClick={() => handleSendMessage(reply.text)} 
                 >
                   {reply.text}
                 </button>
               ))}
             </div>
           </div>
+
+          {/* Input box for new message */}
           <div className="p-4 border-t flex items-center space-x-2">
             <input
               type="text"
               placeholder="Enter your message..."
-              className="flex-1 border rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+              className="flex-1 border rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-950 text-gray-900"
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
             />
             <button
               onClick={handleSendMessage}
-              className="bg-blue-500 text-white rounded-full p-2 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+              className="bg-purple-950 text-white rounded-lg p-2 hover:bg-purple-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
             >
               <Send className="h-5 w-5" />
             </button>
           </div>
         </div>
       </Transition>
+      
+      {/* Button to toggle the chat window */}
       <div className="mt-2">
         <button
           onClick={toggleChat}
-          className="bg-blue-500 text-white rounded-full p-3 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-lg transition-colors"
+          className="bg-purple-950 text-white rounded-lg p-5 hover:bg-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400 shadow-lg transition-colors"
         >
           <MessageCircle className="h-6 w-6" />
         </button>

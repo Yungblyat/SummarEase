@@ -331,19 +331,18 @@ const ResultsPage = () => {
   }
 
   const sections = result
-    ? [
-        { key: 'summary', title: 'Summary', content: result.summary, image: <FileUp />},
-        { key: 'transcript', title: 'Transcript', content: result.transcript_result, image: <ClipboardPen /> },
-        { key: 'diarization', title: 'Speech Diarization', content: result.diarization_results, render: renderDiarizationResults, image: <CheckSquare  /> },
-        { key: 'todos', title: 'Todos', content: result.todos, image: <ListTodo /> },
-        { key: 'engagementMetrics', title: 'Engagement Metrics', content: result, render: renderEngagementMetrics, image: <BarChart2 /> },
-      ].filter((section) => {
-        if (Array.isArray(section.content)) {
-          return section.content.length > 0
-        }
-        return section.content != null && section.content !== ''
-      })
-    : []
+  ? [
+      { key: 'summary', title: 'Summary', content: result.summary, image: <FileUp /> },
+      { key: 'transcript', title: 'Transcript', content: result.transcript_result, image: <ClipboardPen /> },
+      { key: 'diarization', title: 'Speech Diarization', content: result.diarization_results, render: renderDiarizationResults, image: <CheckSquare /> },
+      { key: 'todos', title: 'Todos', content: result.todos, image: <ListTodo /> },
+      // Add a conditional check for engagementMetrics
+      result.interruptions || result.speech_rate || result.metrics || result.sentiment ? 
+      { key: 'engagementMetrics', title: 'Engagement Metrics', content: result, render: renderEngagementMetrics, image: <BarChart2 /> } 
+      : null,
+    ]
+    .filter((section) => section !== null && (Array.isArray(section.content) ? section.content.length > 0 : section.content != null && section.content !== ''))
+  : [];
 
    
   const copyToClipboard = (content) => {
@@ -436,8 +435,8 @@ const ResultsPage = () => {
               >
                 <div className="flex items-center space-x-2">
                  
-                  <span  className="h-5 w-5 text-green-300" >{section.image}</span>
-                  <span className="text-xl font-semibold">{section.title}</span>
+                  <span  className="h-5 w-5 text-white" >{section.image}</span>
+                  <span className="text-xl font-semibold ml-2 mt-1">{section.title}</span>
                 </div>
                 
                 <div className="flex items-center space-x-2">
@@ -461,7 +460,7 @@ const ResultsPage = () => {
           <PDFDownloadLink
             document={<MyDocument sections={sections} />}
             fileName="meeting_summary.pdf"
-            className="bg-white text-purple-700 px-4 py-2 rounded-full flex items-center hover:bg-purple-100 transition-colors duration-200"
+            className="bg-white text-purple-700 px-4 py-2 rounded-lg flex items-center hover:bg-purple-100 transition-colors duration-200"
           >
             {({ blob, url, loading, error }) =>
               loading ? 'Loading document...' : (
@@ -474,7 +473,7 @@ const ResultsPage = () => {
           </PDFDownloadLink>
           <button
             onClick={() => setIsEmailModalOpen(true)}
-            className="bg-white text-purple-700 px-4 py-2 rounded-full flex items-center hover:bg-purple-100 transition-colors duration-200"
+            className="bg-white text-purple-700 px-4 py-2 rounded-lg flex items-center hover:bg-purple-100 transition-colors duration-200"
           >
             <Mail className="mr-2 h-5 w-5" />
             Email Results

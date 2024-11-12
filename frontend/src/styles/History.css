@@ -1,0 +1,48 @@
+.history-page
+{
+    min-height: 100vh; 
+    background: linear-gradient(to top right, #6325CB,#5A29B8, #7A40E2);
+    color: white;  
+    padding: 1.5rem;  
+}
+
+.history-title {
+    font-size: 2.25rem; 
+    font-weight: bold;  
+    margin-bottom: 2rem; 
+    text-align: center; 
+    margin-top: 1rem; 
+}
+
+
+.boxes
+{
+    background-color: rgba(255, 255, 255, 0.1); /* Transparent white background */
+    backdrop-filter: blur(10px); /* Blur effect for frosted glass */
+    border-radius: 1rem; /* Rounded corners */
+    border: 3px solid rgba(255, 255, 255, 0.3); /* Subtle light border */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional soft shadow */
+    color: white; /* Text color */
+    height: 180px;
+}
+
+.boxes-head
+{
+    display: flex;
+    justify-content: space-between; 
+    align-items: end;
+    background-color: rgba(255, 255, 255, 0.1); /* Transparent white background */
+    backdrop-filter: blur(10px); /* Blur effect for frosted glass */
+    border-radius: 1rem 1rem 0 0;
+    padding: 20px 20px;
+    overflow-y: auto;
+    
+}
+
+.upload-date
+{
+    font-size: 0.875rem; /* text-sm (8pt or 14px) */
+    color: #d1b3f4; /* text-purple-200 (light purple color) */
+    margin-top: 1rem;
+    margin-left: 15px;
+}

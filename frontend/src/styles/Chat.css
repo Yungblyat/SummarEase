@@ -1,0 +1,22 @@
+.bot
+{
+    width: 100%;
+  max-width: 28rem; /* 448px */
+  background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent white background */
+  border-radius: 1rem; /* 16px */
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); /* Large shadow */
+  overflow: hidden;
+  backdrop-filter: blur(10px); /* Apply blur effect to the background */
+  -webkit-backdrop-filter: blur(10px);
+  scrollbar-width: thin; /* For Firefox: thin scrollbar */
+    scrollbar-color: rgba(255, 255, 255, 0.5) rgba(133, 123, 141, 0.2); 
+}
+
+.bot-header
+{
+    background: linear-gradient(to right, #2C1459, #5125a4); /* Blue gradient from #3B82F6 to #2563EB */
+  padding: 1rem; /* 16px padding */
+  display: flex; /* Flexbox container */
+  align-items: center; /* Vertically center items */
+  justify-content: space-between;
+}

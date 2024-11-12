@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 import api from '../api';
 import { FILE_ID } from '../constants';
+import { SquareChevronLeft, Trash2 } from 'lucide-react';
+import "../styles/History.css"
 
 function History() {
   const [audioFiles, setAudioFiles] = useState([]);
@@ -24,6 +26,10 @@ function History() {
 
     fetchData();
   }, [refreshKey]);
+
+  const goToHome= () => {
+    navigate('/');
+  };
 
   const handleFileClick = async (fileId) => {
     setLoading(true);
@@ -58,9 +64,13 @@ function History() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 to-indigo-800 text-white p-6">
+    <div className="history-page">
+      <div onClick={goToHome} className='back-btn-div'>
+          <SquareChevronLeft className="back-btn" />
+         
+        </div>
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold mb-8 text-center">History</h1>
+        <h1 className="history-title">History</h1>
         {error && (
           <p className="text-red-300 mb-4 p-3 bg-red-900 bg-opacity-50 rounded" role="alert">
             {error}
@@ -68,26 +78,26 @@ function History() {
         )}
         <ul className="space-y-4">
           {audioFiles.map((file) => (
-            <li key={file.id} className="bg-purple-700 bg-opacity-50 rounded-lg p-4 border border-purple-500">
-              <div className="flex justify-between items-center">
-                <span className="text-white font-medium break-all">
-                  {getFileName(file.file)}
+            <li key={file.id} className="boxes">
+              <div className="boxes-head">
+                <span className="text-white font-large break-all">
+                  {getFileName(file.file).toUpperCase()}
                 </span>
                 <button
                   onClick={() => handleDelete(file.id)}
                   className="text-white hover:text-red-300 transition-colors duration-200"
                   aria-label="Delete file"
                 >
-                  <X size={20} />
+                  <Trash2 size={20} className='text-red-700' />
                 </button>
               </div>
-              <p className="text-sm text-purple-200 mt-2">
+              <p className="upload-date">
                 Uploaded at: {new Date(file.uploaded_at).toLocaleString()}
               </p>
               <button
                 onClick={() => handleFileClick(file.id)}
                 disabled={loading}
-                className={`mt-3 px-4 py-2 rounded-full text-purple-700 font-semibold transition-colors duration-200 ${
+                className={`mt-3 ml-3 px-4 py-2 rounded-lg text-purple-700 font-semibold transition-colors duration-200 ${
                   loading
                     ? 'bg-gray-400 cursor-not-allowed'
                     : 'bg-white hover:bg-purple-100'
