@@ -5,6 +5,8 @@ import ResultsPage from './components/ResultsPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import History from './components/History';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import VerifyEmail from './components/VerifyEmail';
+import PasswordResetConfirm from './components/PasswordResetConfirm';
 
 export default function App() {
     return (
@@ -29,6 +31,8 @@ export default function App() {
                         </ProtectedRoute> 
                         }
                     />
+                    <Route path="/verify-email/:token" element={<VerifyEmail />} />
+                    <Route path="/reset-password/:token" element={<PasswordResetConfirm />} />
                 </Routes>
             </Router>
         </GoogleOAuthProvider>

@@ -14,6 +14,9 @@ urlpatterns = [
     path("user/user-info", getUserInfo.as_view(), name="user-info"),
     path("api-auth/", include("rest_framework.urls")),
     path("user/google-login/", GoogleLoginAPIView.as_view(), name="google_login"),
+    path('verify-email/<str:token>/', VerifyEmailView.as_view(), name='verify-email'),
+    path('password-reset-request/', PasswordResetRequestView.as_view(), name='password-reset-request'),
+    path('password-reset-confirm/<str:token>/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
 ]
  
 # Serve media files if DEBUG is True (development mode)

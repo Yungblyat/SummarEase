@@ -21,7 +21,7 @@ def get_diarization(audio_file_id):
     except SpeakerDiarization.DoesNotExist:
         return None
     
-def transcribe(device: str, model, audio_file: str, batch_size=16, compute_type="float16") -> dict:
+def transcribe(device: str, model, audio_file: str, batch_size=16, compute_type="int8") -> dict:
     model = whisperx.load_model(model, device, compute_type=compute_type)
     audio = whisperx.load_audio(audio_file)
     result = model.transcribe(audio, batch_size=batch_size)
