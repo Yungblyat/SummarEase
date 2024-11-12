@@ -91,79 +91,132 @@ const SentimentBar = ({ label, value, color }) => (
 // PDF Document component
 const MyDocument = ({ sections }) => (
   <Document>
-  <Page size="A4" style={styles.page}>
-    {/* Title */}
-    <Text style={styles.title}>SummarEase</Text>
+    <Page size="A4" style={styles.page}>
+      {/* Title */}
+      <Text style={styles.title}>SummarEase</Text>
 
-    {/* Mapping through sections */}
-    {sections.map((section) => (
-      <View key={section.key} style={styles.section}>
-        <Text style={styles.sectionTitle}>{section.title}</Text>
+      {/* Mapping through sections */}
+      {sections.map((section) => (
+        <View key={section.key} style={styles.section}>
+          <Text style={styles.sectionTitle}>{section.title}</Text>
+          
+          {/* Log the content for debugging */}
+          {console.log('Section Content:', section.content)}  {/* Log section content */}
 
-        {/* Handling the 'summary' section */}
-        {section.key === 'summary' && (
-          <Text style={styles.content}>{cleanDataForPDF(section.content)}</Text>
-        )}
+          {/* Handling the 'summary' section */}
+          {section.key === 'summary' && (
+            <Text style={styles.content}>{cleanDataForPDF(section.content)}</Text>
+          )}
 
-        {/* Handling the 'todos' section */}
-        {section.key === 'todos' && (
-          section.content.map((todo, index) => (
-            <Text key={index} style={styles.content}>
-              {`${index + 1}. ${cleanDataForPDF(todo)}`}
-            </Text>
-          ))
-        )}
-
-        {/* Handling the 'sentiment' section */}
-        {section.key === 'sentiment' && (
-          <>
-            <SentimentBar label="Positive" value={section.content.positive} color="#4caf50" />
-            <SentimentBar label="Neutral" value={section.content.neutral} color="#ff9800" />
-            <SentimentBar label="Negative" value={section.content.negative} color="#f44336" />
-            {/* Showing sentiment as percentages */}
-            {Object.entries(section.content).map(([key, value], index) => (
-              <Text key={index} style={styles.content}>
-                {`${key.charAt(0).toUpperCase() + key.slice(1)}: ${value.toFixed(2)}%`}
+          {/* Handling the 'transcript' section */}
+          {section.key === 'transcript' && (
+            Array.isArray(section.content) ? (
+              section.content.map((text, index) => (
+                <Text key={index} style={styles.content}>
+                  {cleanDataForPDF(text)}
+                </Text>
+              ))
+            ) : (
+              <Text style={styles.content}>
+                {cleanDataForPDF(section.content)}
               </Text>
-            ))}
-          </>
-        )}
+            )
+          )}
 
-        {/* Handling the 'diarization' section */}
-        {section.key === 'diarization' && (
-          Object.entries(section.content).map(([speaker, text], index) => (
-            <Text key={index} style={styles.content}>
-              {cleanDataForPDF(text)}
-            </Text>
-          ))
-        )}
+          {/* Handling the 'todos' section */}
+          {section.key === 'todos' && (
+            Array.isArray(section.content) ? (
+              section.content.map((todo, index) => (
+                <Text key={index} style={styles.content}>
+                  {`${index + 1}. ${cleanDataForPDF(todo)}`}
+                </Text>
+              ))
+            ) : (
+              <Text style={styles.content}>
+                {cleanDataForPDF(section.content)}
+              </Text>
+            )
+          )}
 
-        {/* Handling the 'speechRate' section */}
-        {section.key === 'speechRate' && (
-          Object.entries(section.content).map(([speaker, data], index) => (
-            <Text key={index} style={styles.content}>
-              <Text style={styles.speakerText}>{speaker}:</Text> {`${data.speech_rate.toFixed(2)} words per minute`}
-            </Text>
-          ))
-        )}
+          {/* Handling the 'diarization' section */}
+          {section.key === 'diarization' && (
+            Object.entries(section.content).map(([speaker, text], index) => (
+              <Text key={index} style={styles.content}>
+                <Text style={styles.speakerText}>{speaker}:</Text> {cleanDataForPDF(text)}
+              </Text>
+            ))
+          )}
 
-        {/* Handling the 'interruptions' section */}
-        {section.key === 'interruptions' && (
-          Object.entries(section.content).map(([speaker, data], index) => (
-            <Text key={index} style={styles.content}>
-              <Text style={styles.speakerText}>{speaker} interrupted:</Text>
-              {Object.entries(data).map(([interruptedSpeaker, count], i, arr) => (
-                `${interruptedSpeaker} ${count} time(s)${i < arr.length - 1 ? ', ' : ''}`
-              )).join('')}
-            </Text>
-          ))
-        )}
-      </View>
-    ))}
-  </Page>
-</Document>
+          {/* Handling the 'engagementMetrics' section */}
+          {section.key === 'engagementMetrics' && section.content.speech_rate && (
+            Object.entries(section.content.speech_rate).map(([speaker, data], index) => (
+              <Text key={index} style={styles.content}>
+                <Text style={styles.speakerText}>{speaker}:</Text>
+                {`${data.speech_rate.toFixed(2)} words per minute`}
+              </Text>
+            ))
+          )}
 
+          {/* Render Interruptions */}
+          {section.key === 'engagementMetrics' && section.content.interruptions && (
+            Object.entries(section.content.interruptions).map(([speaker, data], index) => (
+              <Text key={index} style={styles.content}>
+                <Text style={styles.speakerText}>{speaker} interrupted:</Text>
+                {Object.entries(data).map(([interruptedSpeaker, count], i) => (
+                  <Text key={i}>
+                    {`${interruptedSpeaker} ${count} time(s)`}
+                    {i < Object.entries(data).length - 1 ? ', ' : ''}
+                  </Text>
+                ))}
+              </Text>
+            ))
+          )}
+
+          {/* Render Sentiment */}
+          {section.key === 'engagementMetrics' && section.content.sentiment && (
+            <>
+              <Text style={styles.heading}>Sentiment Analysis</Text>
+              {Object.entries(section.content.sentiment).map(([key, value], index) => {
+                // Determine color based on sentiment value
+                let color = 'yellow'; // default color for neutral
+                if (value > 50) color = 'green'; // positive sentiment (good)
+                if (value < -50) color = '#FF0000'; // negative sentiment (bad)
+
+                return (
+                  <Text key={index} style={[styles.content, { color }]}>
+                    {key.charAt(0).toUpperCase() + key.slice(1)}: {value.toFixed(2)}%
+                  </Text>
+                );
+              })}
+            </>
+          )}
+
+          {/* Render Metrics */}
+          {section.key === 'engagementMetrics' && section.content.metrics && (
+            <>
+              <Text style={styles.heading}>Metrics</Text>
+              
+              {/* Log the engagement metrics */}
+              {console.log('Engagement Metrics:', section.content.metrics)}  {/* Log metrics data */}
+
+              {typeof section.content.metrics === 'object' && section.content.metrics !== null ? (
+                Object.entries(section.content.metrics).map(([speaker, data], index) => (
+                  <Text key={index} style={styles.content}>
+                    {`${speaker.charAt(0).toUpperCase() + speaker.slice(1)}: `}
+                    Total Time: {data.total_time}, Turns: {data.turns}, Avg Time Per Turn: {data.average_time_per_turn}
+                  </Text>
+                ))
+              ) : (
+                <Text style={styles.content}>No metrics data available</Text>
+              )}
+            </>
+          )}
+        </View>
+      ))}
+    </Page>
+  </Document>
 );
+
 
 
 
@@ -233,6 +286,7 @@ const ResultsPage = () => {
   };
 
   const renderEngagementMetrics = (result) => {
+    
     const { interruptions, speech_rate, sentiment, metrics } = result
 
     return (
@@ -462,10 +516,12 @@ const ResultsPage = () => {
             fileName="meeting_summary.pdf"
             className="bg-white text-purple-700 px-4 py-2 rounded-lg flex items-center hover:bg-purple-100 transition-colors duration-200"
           >
-            {({ blob, url, loading, error }) =>
+            {({ blob, url, loading, error, }) =>
               loading ? 'Loading document...' : (
                 <>
                   <Download className="mr-2 h-5 w-5" />
+          
+                  
                   Download PDF
                 </>
               )
