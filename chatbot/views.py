@@ -103,7 +103,8 @@ def chatbot_endpoint(request):
     # Get diarization content for context
     diarization = getattr(audio_file, 'speaker_diarization', None)
 
-    transcription = getattr(audio_file, 'transcript', None)
+    transcription =getattr(audio_file, 'transcript', None)
+    print(transcription)
     
     diarization_content = ""
     if diarization:
@@ -112,7 +113,10 @@ def chatbot_endpoint(request):
             for segment in diarization.content["segments"]
         )
     else:
-        Ai_context = ''.join([segment.get('text', '') for segment in transcription.get("segments", [])])
+        Ai_context = "\n".join(
+            f"{segment.get('speaker')}: {segment.get('text').lstrip()}"
+            for segment in transcription.content["segments"]
+        )
 
     # Pass the message and diarization content to the query handler
     response = handle_user_query(message, Ai_context)

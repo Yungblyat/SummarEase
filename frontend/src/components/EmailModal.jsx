@@ -6,6 +6,7 @@ import { X } from 'lucide-react';
 import axios from 'axios';
 import api from "../api"
 
+
 export const file_id = null;
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -36,6 +37,7 @@ export default function EmailModal({ isOpen, setIsOpen, emails, setEmails }) {
     setEmails(newEmails);
   };
 
+
   const handleSendEmails = async () => {
     try {
       const file_id = localStorage.getItem(FILE_ID)
@@ -46,6 +48,11 @@ export default function EmailModal({ isOpen, setIsOpen, emails, setEmails }) {
       console.error('Failed to send emails:', error);
     }
   };
+
+  const closeHandle=()=>{
+    setIsOpen(false)
+    console.log("sduj")
+  }
 
   return (
     <Transition appear show={isOpen} as={React.Fragment}>
@@ -63,6 +70,7 @@ export default function EmailModal({ isOpen, setIsOpen, emails, setEmails }) {
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
+         
           <div className="flex min-h-full items-center justify-center p-4 text-center">
             <Transition.Child
               as={React.Fragment}
@@ -74,6 +82,9 @@ export default function EmailModal({ isOpen, setIsOpen, emails, setEmails }) {
               leaveTo="opacity-0 scale-95"
             >
               <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <div className='flex justify-end cursor-pointer '>
+                 < X onClick={closeHandle}/>
+                </div>
                 <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900 mb-4">
                   Enter Email Addresses
                 </Dialog.Title>
@@ -110,7 +121,7 @@ export default function EmailModal({ isOpen, setIsOpen, emails, setEmails }) {
                 </div>
                 <button
                   onClick={handleSendEmails}
-                  className="w-full inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                  className="w-full inline-flex justify-center rounded-md border border-transparent bg-purple-950 px-4 py-2 text-sm font-medium text-white hover:bg-purple-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                 >
                   Send to Email
                 </button>
