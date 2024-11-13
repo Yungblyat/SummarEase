@@ -125,7 +125,6 @@ class PasswordResetRequestView(APIView):
 
     def post(self, request):
         email = request.data.get('email')
-        print(email)
         try:
             user = User.objects.get(email=email)
             # Generate a token for the user
