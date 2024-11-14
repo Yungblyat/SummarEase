@@ -130,61 +130,55 @@
   }
 
   /* Hidden by default */
-.nav-center {
-  display: none;
-  margin-top: 0.5rem;
-}
-
-/* Flexbox layout on medium screens and above (>=768px) */
-@media (min-width: 768px) {
   .nav-center {
-    position: fixed; 
-    z-index: 999;
-    /* background: linear-gradient(90deg, #2C165C, #542EDA); */
-    background:
-  rgba(72, 17, 127, 0.3);
-    box-shadow:
-    0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
-    backdrop-filter:
-    blur( 4px );
-    -webkit-backdrop-filter:
-    blur( 10px );
-    border-radius:
-    10px;
-    border:
-1px solid rgba( 255, 255, 255, 0.18 );
-    display: flex;
-    margin-left: 34.7%;
-    gap: 35px;
-    z-index: 10;
-    /* background: 
-    rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px); 
-    -webkit-backdrop-filter: blur(10px); 
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);  */
-    border-radius: 20px; /* Rounded corners for a smoother look */
-    padding: 15px; /* Add padding for spacing */
-   
+    display: none;
+    margin-top: 8vh ;
+  }
+  
+  /* Flexbox layout on medium screens and above (>=768px) */
+  @media (min-width: 768px) {
+    .nav-center {
+      position: fixed; 
+      
+      left: 50%; /* Position from the left */
+      transform: translate(-50%, -50%); /* Center it both vertically and horizontally */
+      z-index: 999;
+      background: rgba(72, 17, 127, 0.3);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 35px;
+      padding: 15px;
+    }
+  
+    /* Apply horizontal spacing between flex items */
+    .nav-center > * {
+      margin-right: 1.5rem; /* 6 * 0.25rem (1.5rem) */
+    }
+  
+    .nav-center > *:first-child {
+      margin-left: 1.5rem;
+    }
+  
+    /* Remove the margin from the last item */
+    .nav-center > *:last-child {
+      margin-right: 1.5rem;
+    }
+  }
+  
+  .text:hover {
+    color: #ffe0d5;
+    transition: 0.1s;
   }
 
-  /* Apply horizontal spacing between flex items */
-  .nav-center > * {
-    margin-right: 1.5rem; /* 6 * 0.25rem (1.5rem) */
-  }
-
-  .nav-center >*:first-child {
-    margin-left: 1.5rem;
-  }
-  /* Remove the margin from the last item */
-  .nav-center > *:last-child {
-    margin-right: 1.5rem;
-  }
-}
-
-.text:hover
+.right
 {
-  color: #ffe0d5;
-  transition: 0.1s;
+  margin-left: 0px;
 }
 
 /* From Uiverse.io by ryota1231 */ 

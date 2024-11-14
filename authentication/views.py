@@ -16,9 +16,13 @@ from django.contrib.auth.models import User
 from SummarEaseFyp.settings import GOOGLE_CLIENT_ID
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired, BadData
 from django.urls import reverse
-from verify_email import send_mail
+from django.core.mail import send_mail
 from django.conf import settings
-
+from django.template.loader import render_to_string
+from django.shortcuts import render
+import os
+from django.db import IntegrityError
+from django.core.exceptions import ValidationError
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -31,24 +35,53 @@ class createUser(generics.CreateAPIView):
     permission_classes = [AllowAny]
 
     def perform_create(self, serializer):
-        # Save the user with `is_active=False`
-        user = serializer.save(is_active=False)
-        
-        # Generate verification token
-        serializer = URLSafeTimedSerializer(settings.SECRET_KEY)
-        token = serializer.dumps(user.email, salt='email-verification')
-        
-        # Construct verification URL
-        verification_url = f"{settings.FRONTEND_URL}/verify-email/{token}"
+        try:
+            # Save the user with `is_active=False`
+            user = serializer.save(is_active=False)
+            
+            # Generate verification token
+            serializer = URLSafeTimedSerializer(settings.SECRET_KEY)
+            token = serializer.dumps(user.email, salt='email-verification')
+            
+            # Construct verification URL
+            verification_url = f"{settings.FRONTEND_URL}/verify-email/{token}"
 
-        # Send verification email
-        send_mail(
-            'Verify your email',
-            f'Please click the link to verify your email: {verification_url}',
-            'from@example.com',
-            [user.email],
-            fail_silently=False,
-        )
+            # Send verification email
+            email_subject = 'Verify your email'
+            verify_body = render_to_string('verify_email.html', {'verification_url': verification_url})
+
+            send_mail(
+                email_subject,
+                '',  # Body is handled in the HTML email
+                os.getenv("EMAIL_HOST_USER"),  # Sender email
+                recipient_list=[user.email],  # List of recipient emails
+                html_message=verify_body,  # HTML body
+                fail_silently=False,
+            )
+
+        except IntegrityError:
+            # Handle unique constraint violation (e.g., email already exists)
+            return Response(
+                {'error': 'A user with this email already exists.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        except ValidationError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        except BadSignature:
+            return Response({'error': 'Token generation failed. Please try again later.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        except Exception as e:
+            return Response({'error': 'Failed to send verification email. Please check your email and try again.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        # send_mail(
+        #     ,
+        #     f'Please click the link to verify your email: {verification_url}',
+        #     'from@example.com',
+        #     [user.email],
+        #     fail_silently=False,
+        # )
 
 class getUserInfo(APIView):
 	permission_classes = [IsAuthenticated]
@@ -132,14 +165,26 @@ class PasswordResetRequestView(APIView):
             
             # Construct the password reset URL
             reset_url = f"{settings.FRONTEND_URL}/reset-password/{token}"
+            reset_body= render_to_string('reset.html',{"reset_url":reset_url})
+            email_subject="Password Reset Request"
 
             # Send the email with the reset URL
             send_mail(
-                subject="Password Reset Request",
-                message=f"Click the link to reset your password: {reset_url}",
-                from_email="no-reply@example.com",
-                recipient_list=[email],
-            )
+            email_subject,
+            '',  # Body is handled in the HTML email
+            os.getenv("EMAIL_HOST_USER"),  # Sender email
+            recipient_list=[email],  # List of recipient emails
+            html_message=reset_body,  # HTML body
+            fail_silently=False,
+        )
+            # send_mail(
+            #     ,
+            #     '',
+            #     html_message=reset_body,
+            #     # message=f"Click the link to reset your password: {reset_url}",
+            #     os.getenv("EMAIL_HOST_USER"),
+                
+            # )
             return Response({"message": "Password reset email sent."}, status=200)
 
         except User.DoesNotExist:
@@ -164,3 +209,13 @@ class PasswordResetConfirmView(APIView):
 
         except (BadData, User.DoesNotExist):
             return Response({"error": "Invalid or expired token."}, status=400)
+        
+
+
+
+def test(request):
+    return render(request,"reset.html")
+
+
+def test1(request):
+    return render(request,"verify_email.html")

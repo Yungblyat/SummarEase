@@ -106,30 +106,46 @@ export default function UploadSection({ isLoggedIn, onLoginRequired }) {
             </label>
           </div>
           <div className="space-y-2 mb-4">
-            {Object.entries(options).map(([key, value]) => (
-              <label
-                key={key}
-                className={`flex items-center space-x-2 text-purple-200 ${
-                  key === "engagement" && !options.diarization
-                    ? "opacity-50 cursor-not-allowed"
-                    : ""
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={value}
-                  onChange={() => handleOptionChange(key)}
-                  className="form-checkbox h-5 w-5 text-purple-500"
-                  disabled={key === "engagement" && !options.diarization}
-                />
-                <span className="capitalize">{key}</span>
-                {key === "summary" && <FileUp className="h-4 w-4" />}
-                {key === "diarization" && <CheckSquare className="h-4 w-4" />}
-                {key === "engagement" && <BarChart2 className="h-4 w-4" />}
-                {key === "todo" && <ListTodo className="h-4 w-4" />}
-              </label>
-            ))}
-          </div>
+  {Object.entries(options).map(([key, value]) => (
+    <label
+      key={key}
+      className={`flex items-center space-x-2 text-purple-200 ${
+        key === "engagement" && !options.diarization
+          ? "opacity-50 cursor-not-allowed"
+          : ""
+      }`}
+    >
+      {/* Custom Toggle Switch */}
+      <div className="relative">
+        <input
+          type="checkbox"
+          checked={value}
+          onChange={() => handleOptionChange(key)}
+          className="sr-only"
+          disabled={key === "engagement" && !options.diarization}
+        />
+        <div
+          className={`box block h-6 w-12 rounded-full transition-all ${
+            value ? 'bg-purple-500' : 'bg-white'
+          }`}
+        ></div>
+        <div
+          className={`absolute top-0.5 left-1 flex h-5 w-5 items-center justify-center rounded-full bg-white border border-purple-500 transition-transform ${
+            value ? 'translate-x-5' : ''
+          }`}
+        ></div>
+      </div>
+
+      <span className="capitalize">{key}</span>
+
+      {/* Icons based on the key */}
+      {key === "summary" && <FileUp className="h-4 w-4" />}
+      {key === "diarization" && <CheckSquare className="h-4 w-4" />}
+      {key === "engagement" && <BarChart2 className="h-4 w-4" />}
+      {key === "todo" && <ListTodo className="h-4 w-4" />}
+    </label>
+  ))}
+</div>
           <button
             onClick={handleUpload}
             className={`w-full bg-purple-800 hover:bg-purple-900 text-white font-bold py-2 px-4 rounded-full flex items-center justify-center ${

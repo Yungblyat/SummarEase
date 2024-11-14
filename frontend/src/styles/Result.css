@@ -4,24 +4,19 @@
 
 
 
-.result-page
-{
-    min-height: 700px;
-    
-    background: linear-gradient(to top right, #6325CB,#5A29B8, #7A40E2);
-    /* background: url(https://img.freepik.com/free-vector/violet-blurred-background_1035-3289.jpg?t=st=1729778979~exp=1729782579~hmac=0ff1699420454e75769ee8ceaf63977161627bb1aaab087c01603e334f8b1f5f&w=1380); */
- 
+.result-page {
+    background: linear-gradient(to top right, #6325CB, #5A29B8, #7A40E2);
+    min-height: 100vh; /* Changed from height: 100% to min-height: 100vh */
     color: white;
     overflow-y: auto;
-    font-family:sans-serif;
+    font-family: sans-serif;
+    box-sizing: border-box;
 }
 
-.main-result-page 
-{
-    max-width: 58rem;  
-    margin-left: auto;
-    margin-right: auto; 
-    padding: 2rem;     
+.main-result-page {
+    max-width: 58rem;
+    margin: 0 auto; /* Center alignment */
+    padding: 2rem;
 }
 
 .main-title

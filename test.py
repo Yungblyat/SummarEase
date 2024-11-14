@@ -1,4 +1,5 @@
 import torch
 
 import torch
-print(torch.cuda.is_available())
+import os
+print(os.getenv("GOOGLE_CLIENT_ID"))

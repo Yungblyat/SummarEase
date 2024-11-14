@@ -98,8 +98,7 @@ const ResultsPage = () => {
     transcript: true,
     diarization: true,
     todos: true,
-    sentiment: true,
-    speechRate: true
+    engagementMetrics: true,
   });
   const [showScrollIndicator, setShowScrollIndicator] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);

@@ -194,6 +194,7 @@ AUTHENTICATION_BACKENDS = (
 
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 
+
 # Update this to point to your frontend boyo if you want email verification to work
 FRONTEND_URL = "http://localhost:5173"
 

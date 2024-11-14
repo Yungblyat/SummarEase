@@ -117,7 +117,7 @@
                 {% endfor %}
             {% endif %}
         </div>
-
+        {% if sentiment %}
         <div class="card">
             <h2>Sentiment Analysis</h2>
             <div class="sentiment-item positive">
@@ -152,6 +152,7 @@
                 </div>
             </div>
     </div>
+    {% endif %}
 </body>
 </html>
 

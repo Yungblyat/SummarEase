@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Dialog } from '@headlessui/react'
-import { X } from 'lucide-react'
+import { X, Eye, EyeClosed } from 'lucide-react'
 import api from '../api'
 import { ACCESS_TOKEN, REFRESH_TOKEN } from '../constants'
 import GoogleSignIn from './GoogleLogin'
@@ -19,6 +19,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
   const [isSignUp, setIsSignUp] = useState(false)
   const [formErrors, setFormErrors] = useState({})
   const [isForgotPassword, setIsForgotPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
 
   const validateForm = (formData) => {
     const errors = {}
@@ -94,6 +95,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
         onClose()
       }
     } catch (error) {
+      console.log(response.data);
       setError(isSignUp ? 'Sign up failed. Please try again.' : 'Sign in failed. Please check your credentials.')
     }
   }

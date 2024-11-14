@@ -17,6 +17,8 @@ urlpatterns = [
     path('verify-email/<str:token>/', VerifyEmailView.as_view(), name='verify-email'),
     path('password-reset-request/', PasswordResetRequestView.as_view(), name='password-reset-request'),
     path('password-reset-confirm/<str:token>/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
+    path("testreset/", test, name="test"),
+    path("test/", test1, name="test1"),
 ]
  
 # Serve media files if DEBUG is True (development mode)
