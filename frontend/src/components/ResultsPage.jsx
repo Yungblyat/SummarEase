@@ -231,21 +231,40 @@ const ResultsPage = () => {
     </div>
 
     {typeof sentiment === 'object' && sentiment !== null ? (
-      Object.entries(sentiment).map(([key, value]) => {
-        // Determine color based on sentiment value
-        let color = 'bg-yellow-500'; // default color for neutral
-        if (value > 50) color = 'bg-green-500'; // positive sentiment (good)
-        if (value < -50) color = 'bg-red-500'; // negative sentiment (bad)
+  Object.entries(sentiment).map(([key, value]) => {
+    // Initialize default color for neutral sentiment
+    let color = 'bg-yellow-500'; // neutral color as default
 
-        return (
-          <div key={key} className="mb-4">
-            <SentimentBar label={key.charAt(0).toUpperCase() + key.slice(1)} value={value.toFixed(2)} color={color} />
-          </div>
-        );
-      })
-    ) : (
-      <p className="text-white">Overall sentiment: {sentiment}</p>
-    )}
+    // Check for positive sentiment (key === 'average_positive')
+    if (key === 'average_positive') {
+      color = 'bg-green-500'; // positive sentiment (good)
+    }
+
+    // Check for negative sentiment (key === 'average_negative')
+    if (key === 'average_negative') {
+      color = 'bg-red-500'; // negative sentiment (bad)
+    }
+
+    // Check for neutral sentiment (key === 'average_neutral')
+    if (key === 'average_neutral') {
+      color = 'bg-yellow-500'; // neutral sentiment
+    }
+
+    return (
+      <div key={key} className="mb-4">
+        <SentimentBar
+          label={key.charAt(0).toUpperCase() + key.slice(1)} // Capitalize first letter
+          value={value.toFixed(2)} // Format value to 2 decimal places
+          color={color} // Apply color based on sentiment
+        />
+      </div>
+    );
+  })
+) : (
+  <p className="text-white">Overall sentiment: {sentiment}</p>
+)}
+
+
   </div>
         )}
       </div>
