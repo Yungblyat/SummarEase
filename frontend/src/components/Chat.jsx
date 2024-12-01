@@ -46,6 +46,7 @@ export default function ChatInterface() {
   const toggleChat = () => setIsVisible(!isVisible);
 
   const handleSendMessage = async (messageText = inputMessage) => {
+    // console.log("handleSendMessage called with:", messageText); // Debugging log
     if (messageText.trim()) {
       setMessages(prevMessages => [...prevMessages, { id: prevMessages.length + 1, text: messageText, sender: 'user' }]);
       setInputMessage('');
@@ -57,6 +58,7 @@ export default function ChatInterface() {
       }
     }
   };
+  
 
   return (
     <div className="fixed bottom-4 right-4 flex flex-col items-end">
@@ -135,12 +137,13 @@ export default function ChatInterface() {
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
             />
-            <button
-              onClick={handleSendMessage}
-              className="bg-purple-950 text-white rounded-lg p-2 hover:bg-purple-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-            >
-              <Send className="h-5 w-5" />
-            </button>
+           <button
+            onClick={() => handleSendMessage()}
+            className="bg-purple-950 text-white rounded-lg p-2 hover:bg-purple-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+          >
+            <Send className="h-5 w-5" />
+          </button>
+
           </div>
         </div>
       </Transition>

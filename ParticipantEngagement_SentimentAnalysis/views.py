@@ -158,9 +158,9 @@ def calculate_sentiment(diarization_content):
         label = result['label']
         
         # Adjust thresholds to be more flexible for detecting negative sentiments
-        if label == 'POSITIVE' and score > 0.7:  # High confidence for positive
+        if label == 'POSITIVE' and score > 0.6:  # High confidence for positive
             total_sentiments["positive"] += 1
-        elif label == 'NEGATIVE' and score > 0.7:  # High confidence for negative
+        elif label == 'NEGATIVE' and score > 0.6:  # High confidence for negative
             total_sentiments["negative"] += 1
         else:
             total_sentiments["neutral"] += 1  # Default to neutral if not highly confident
